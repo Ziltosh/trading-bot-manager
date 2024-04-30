@@ -1,0 +1,64 @@
+[workspace]
+resolver = "2"
+members = [
+    "src-tauri",
+    "prisma/prisma_cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+#prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", rev = "e701c00", default-features = false, features = [
+#    "sqlite",
+#    "rspc",
+#    "sqlite-create-many",
+#    "migrations"
+#] }
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11", default-features = false, features = [
+    "sqlite",
+    "rspc",
+    "sqlite-create-many",
+    "migrations"
+] }
+#prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-rust", rev = "e701c00", default-features = false, features = [
+#    "sqlite",
+#    "rspc",
+#    "sqlite-create-many",
+#    "migrations"
+#] }
+prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11", default-features = false, features = [
+    "sqlite",
+    "rspc",
+    "sqlite-create-many",
+    "migrations"
+] }
+
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde_json = { version = "1.0" }
+serde_with = { version = "3.0" }
+
+tauri = { version = "1.6.1", features = ["dialog-save", "dialog-open", "http-request", "window-set-resizable", "window-set-size", "path-all", "fs-write-file"] }
+tauri-build = { version = "1.5.1", features = [] }
+tokio = { version = "1.36", features = ["macros", "rt", "rt-multi-thread"] }
+#specta-macros = "=2.0.0-rc.1"
+#specta = "2.0.0-rc.1"
+rspc = { version = "0.1.4", features = ["tauri"] }
+
+
+dotenvy = "0.15.7"
+eyre = "0.6"
+open = "5.1.2"
+pretty_env_logger = "0.5.0"
+log = "0.4.21"
+thiserror = "1.0.58"
+calamine = { version = "0.24.0", features = ["chrono", "dates"] }
+chrono = { version = "0.4.35", features = ["serde"] }
+
+[profile.release]
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "z"
+panic = 'abort'

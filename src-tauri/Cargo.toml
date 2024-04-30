@@ -1,0 +1,40 @@
+[package]
+name = "app"
+version = { workspace = true }
+description = "A Tauri App"
+authors = ["you"]
+license = ""
+repository = ""
+default-run = "app"
+edition = "2021"
+rust-version = "1.74"
+
+[build-dependencies]
+tauri-build = { workspace = true }
+
+[dependencies]
+tauri = { workspace = true }
+#specta-macros = { workspace = true }
+#specta = { workspace = true }
+#rspc-tauri = { workspace = true }
+serde_json = { workspace = true }
+dotenvy = { workspace = true }
+serde = { workspace = true }
+prisma-client-rust = { workspace = true }
+tokio = { workspace = true }
+eyre = { workspace = true }
+rspc = { workspace = true }
+open = { workspace = true }
+pretty_env_logger = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+calamine = { workspace = true }
+chrono = { workspace = true }
+
+
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

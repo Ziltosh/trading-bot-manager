@@ -1,0 +1,115 @@
+generator client {
+    provider    = "cargo prisma"
+    // output        = "../src-tauri/src/service/src/generate_prisma"
+    output      = "../src-tauri/src/service/generate_prisma.rs"
+    // output      = "prisma_test.rs"
+    module_path = "service::generate_prisma"
+    // client_format = "folder"
+}
+
+datasource db {
+    provider = "sqlite"
+    // url      = env("DATABASE_URL")
+    url      = "file:db.sqlite"
+}
+
+// model Test {
+//     id   Int    @id @default(autoincrement())
+//     name String
+// }
+
+model Robot {
+    id            Int            @id @default(autoincrement())
+    name          String
+    description   String         @default("")
+    json_settings String         @default("{}")
+    tags          RobotTag[]
+    optimisations Optimisation[]
+}
+
+model Compte {
+    id            Int            @id @default(autoincrement())
+    name          String
+    type_compte   String
+    capital       Float
+    devise        String
+    courtier      String
+    plateforme    String
+    numero        String
+    password      String?
+    serveur       String
+    status        String
+    tags          CompteTag[]
+    optimisations Optimisation[]
+
+    @@index([type_compte])
+}
+
+model Tag {
+    id            Int               @id @default(autoincrement())
+    cible         String
+    name          String
+    robots        RobotTag[]
+    comptes       CompteTag[]
+    optimisations OptimisationTag[]
+}
+
+model RobotTag {
+    robot   Robot @relation(fields: [robotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    robotId Int
+    tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    tagId   Int
+
+    @@id([robotId, tagId])
+}
+
+model CompteTag {
+    compte   Compte @relation(fields: [compteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    compteId Int
+    tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    tagId    Int
+
+    @@id([compteId, tagId])
+}
+
+model OptimisationTag {
+    optimisation   Optimisation @relation(fields: [optimisationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    optimisationId Int
+    tag            Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    tagId          Int
+
+    @@id([optimisationId, tagId])
+}
+
+model Optimisation {
+    id               Int                   @id @default(autoincrement())
+    robot            Robot                 @relation(fields: [robotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    robotId          Int
+    name             String                @unique
+    description      String
+    capital          Float
+    date_debut       String
+    decalage_ct      Int
+    decalage_ct_unit String
+    decalage_lt      Int
+    decalage_lt_unit String
+    timeframe        String
+    paire            String
+    set_path         String
+    xlsm_path        String
+    tags             OptimisationTag[]
+    compte           Compte?               @relation(fields: [compteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    compteId         Int?
+    periodes         OptimisationPeriode[]
+}
+
+model OptimisationPeriode {
+    id             Int          @id @default(autoincrement())
+    optimisation   Optimisation @relation(fields: [optimisationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    optimisationId Int
+    periode        String
+    profit         Float
+    drawdown       Float
+
+    @@unique([optimisationId, periode, profit, drawdown])
+}
