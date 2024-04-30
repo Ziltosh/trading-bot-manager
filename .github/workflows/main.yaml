@@ -15,12 +15,12 @@ jobs:
         settings:
           - platform: 'macos-latest' # for Arm based macs (M1 and above).
             args: '--target aarch64-apple-darwin'
-          #          - platform: 'macos-latest' # for Intel based macs.
-          #            args: '--target x86_64-apple-darwin'
-    #          - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
-    #            args: ''
-    #          - platform: 'windows-latest'
-    #            args: ''
+          - platform: 'macos-latest' # for Intel based macs.
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
 
     runs-on: ${{ matrix.settings.platform }}
     steps:
@@ -51,24 +51,12 @@ jobs:
           version: 8
           run_install: true
 
-      #      - name: Rust cache
-      #        uses: swatinem/rust-cache@v2
-      #        with:
-      #          workspaces: './src-tauri -> target'
-
-      #      - name: install frontend dependencies
-      #        # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
-      #        run: pnpm install # change this to npm or pnpm depending on which one you use.
-
-      #      - name: Prisma generate
-      #        run: cargo prisma generate
-
-      - name: Generate Prisma client
-        shell: bash
-        run: |
-          set -euxo pipefail
-          cargo prisma validate
-          cargo prisma generate
+      #      - name: Generate Prisma client
+      #        shell: bash
+      #        run: |
+      #          set -euxo pipefail
+      #          cargo prisma validate
+      #          cargo prisma generate
 
       - uses: tauri-apps/tauri-action@v0
         env:
