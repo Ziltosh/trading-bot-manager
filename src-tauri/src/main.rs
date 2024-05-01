@@ -47,8 +47,9 @@ async fn main() {
     // Migrate the database
     let client = Arc::new(service::migrator::new_client(&path).await.unwrap());
 
-    #[cfg(debug_assertions)]
-        let _ = client._db_push().accept_data_loss().await;
+    // #[cfg(debug_assertions)]
+    let res = client._db_push().accept_data_loss().await;
+    println!("res: {:?}", res);
 
 
     tauri::Builder::default()
