@@ -10,6 +10,22 @@
 // }
 
 #[tauri::command]
+pub fn get_db_path(app_handle: tauri::AppHandle) -> Result<String, String> {
+    // On cherche le path app data pour y mettre la bdd
+    // let context = tauri::generate_context!();
+    // let path = resolve_path(
+    //     context.config(),
+    //     context.package_info(),
+    //     &Env::default(),
+    //     "db.sqlite",
+    //     Some(BaseDirectory::AppData),
+    // )
+    //     .expect("failed to resolve path");
+
+    Ok(app_handle.path_resolver().app_data_dir().unwrap().to_str().unwrap().to_string())
+}
+
+#[tauri::command]
 pub fn open_file(path: String) -> Result<String, String> {
     // On cherche le path app data pour y mettre la bdd
     match open::that(path)

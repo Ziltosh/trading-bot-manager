@@ -46,7 +46,7 @@ jobs:
         # You can remove the one that doesn't apply to your app to speed up the workflow a bit.
 
       - name: install target x86 macOS dependencies
-        if: matrix.platform == 'macos-latest' && matrix.args == '--target x86_64-apple-darwin'
+        if: matrix.args == '--target x86_64-apple-darwin'
         run: |
           rustup target add x86_64-apple-darwin
 

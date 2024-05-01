@@ -59,6 +59,7 @@ async fn main() {
             // dev_db_test_connexion,
             commands::open_file,
             commands::replace_file,
+            commands::get_db_path,
             // commands::portfolio::portfolio_select_by_user_id,
             // commands::portfolio::portfolio_select_by_id,
             // commands::portfolio::portfolio_insert,
