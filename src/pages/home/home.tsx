@@ -11,16 +11,8 @@
 import { Layout } from "@/pages/layout.tsx";
 import { HomeSidebar } from "@/pages/home/sidebar.tsx";
 import { HomeContent } from "@/pages/home/content.tsx";
-import { useEffect } from "react";
-import { invoke } from "@tauri-apps/api";
 
 export const HomePage = () => {
-    useEffect(() => {
-        invoke("get_db_path").then((response) => {
-            alert(response);
-        });
-    }, []);
-
     return (
         /**
          * The `Layout` component is used here with `HomeSidebar` and `HomeContent` passed as props.
