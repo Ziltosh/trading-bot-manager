@@ -5,7 +5,7 @@ export const HomeContentMain = () => {
     const [dbPath, setDbPath] = useState("");
 
     useEffect(() => {
-        invoke("get_db_path").then((response) => {
+        invoke<{ path: string; exists: boolean }>("get_db_path").then((response) => {
             alert(response.path);
             alert(response.exists);
             setDbPath(response.path as string);
