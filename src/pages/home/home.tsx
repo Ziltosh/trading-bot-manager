@@ -8,9 +8,9 @@
  *   <HomePage />
  * )
  */
-import {Layout} from "@/pages/layout.tsx";
-import {HomeSidebar} from "@/pages/home/sidebar.tsx";
-import {HomeContent} from "@/pages/home/content.tsx";
+import { Layout } from "@/pages/layout.tsx";
+import { HomeSidebar } from "@/pages/home/sidebar.tsx";
+import { HomeContent } from "@/pages/home/content.tsx";
 
 export const HomePage = () => {
     return (
@@ -20,7 +20,7 @@ export const HomePage = () => {
          * `HomeContent` will be displayed in the content area of the layout.
          */
         <>
-            <Layout sidebar={<HomeSidebar/>} content={<HomeContent/>} />
+            <Layout sidebar={<HomeSidebar />} content={<HomeContent />} />
         </>
-    )
-}
+    );
+};

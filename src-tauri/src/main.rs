@@ -47,8 +47,9 @@ async fn main() {
     // Migrate the database
     let client = Arc::new(service::migrator::new_client(&path).await.unwrap());
 
-    #[cfg(debug_assertions)]
-        let _ = client._db_push().accept_data_loss().await;
+    // #[cfg(debug_assertions)]
+    let res = client._db_push().accept_data_loss().await;
+    println!("res: {:?}", res);
 
 
     tauri::Builder::default()
@@ -59,6 +60,7 @@ async fn main() {
             // dev_db_test_connexion,
             commands::open_file,
             commands::replace_file,
+            commands::get_db_path,
             // commands::portfolio::portfolio_select_by_user_id,
             // commands::portfolio::portfolio_select_by_id,
             // commands::portfolio::portfolio_insert,

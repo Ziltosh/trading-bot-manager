@@ -7,7 +7,7 @@ export const RobotContentMain = () => {
 
     return (
         <>
-            <h1>Robot Content Main</h1>
+            <div className="rounded-md bg-gray-100 p-2">TODO: Pouvoir supprimer un robot.</div>
         </>
     );
 };

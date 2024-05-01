@@ -155,7 +155,7 @@ export const HomeContentDetails = () => {
                 </Table>
             )}
 
-            <Button>Lancer un robot</Button>
+            <Button disabled>Lancer un robot</Button>
 
             <H3>Liste des robots sur le compte</H3>
 
