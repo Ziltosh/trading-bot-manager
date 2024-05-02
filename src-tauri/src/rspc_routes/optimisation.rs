@@ -465,7 +465,10 @@ pub fn mount() -> RouterBuilder<Shared> {
 
             // On cherche le path app data pour y mettre la bdd
 
+            println!("compte_id: {:?}", compte_id);
+
             println!("app_data_dir: {:?}", app_data_dir);
+
 
             let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH);
 
@@ -485,7 +488,7 @@ pub fn mount() -> RouterBuilder<Shared> {
 
             let optimisation;
 
-            if (compte_id.is_none()) {
+            if (compte_id == None) {
                 optimisation = ctx.client
                     .optimisation().create(
                     robot::id::equals(robot_id),
@@ -520,7 +523,7 @@ pub fn mount() -> RouterBuilder<Shared> {
                     new_set_path,
                     new_xlsm_path,
                     vec![
-                        optimisation::compte_id::set(compte_id)
+                        optimisation::compte::connect(compte::id::equals(compte_id.unwrap()))
                     ],
                 ).exec().await?;
             }
@@ -569,20 +572,38 @@ pub fn mount() -> RouterBuilder<Shared> {
                 paire
             } = args;
 
-            let op = ctx.client
-                .optimisation()
-                .update(
-                    optimisation::id::equals(id),
-                    vec![
-                        optimisation::name::set(name),
-                        optimisation::description::set(description),
-                        optimisation::timeframe::set(timeframe),
-                        optimisation::paire::set(paire),
-                        optimisation::compte_id::set(compte_id)
-                    ]
-                )
-                .exec()
-                .await?;
+            let op;
+
+            if (compte_id.is_none()) {
+                op = ctx.client
+                    .optimisation()
+                    .update(
+                        optimisation::id::equals(id),
+                        vec![
+                            optimisation::name::set(name),
+                            optimisation::description::set(description),
+                            optimisation::timeframe::set(timeframe),
+                            optimisation::paire::set(paire),
+                        ]
+                    )
+                    .exec()
+                    .await?;
+            } else {
+                op = ctx.client
+                    .optimisation()
+                    .update(
+                        optimisation::id::equals(id),
+                        vec![
+                            optimisation::name::set(name),
+                            optimisation::description::set(description),
+                            optimisation::timeframe::set(timeframe),
+                            optimisation::paire::set(paire),
+                            optimisation::compte_id::set(compte_id)
+                        ]
+                    )
+                    .exec()
+                    .await?;
+            }
 
             Ok(op)
         })
