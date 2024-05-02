@@ -13,6 +13,8 @@ dist-ssr
 *.local
 target
 
+merge_master.sh
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
