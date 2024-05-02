@@ -36,6 +36,10 @@ pub fn mount() -> RouterBuilder<Shared> {
                         {
                             name
                         }
+                        compte: select
+                        {
+                            name
+                        }
                     }))
                     .exec()
                     .await?;
@@ -65,6 +69,10 @@ pub fn mount() -> RouterBuilder<Shared> {
                         {
                             name
                         }
+                        compte: select
+                        {
+                            name
+                        }
                     }))
                     .exec()
                     .await?;
@@ -91,6 +99,10 @@ pub fn mount() -> RouterBuilder<Shared> {
                             }
                         }
                         robot: select
+                        {
+                            name
+                        }
+                        compte: select
                         {
                             name
                         }
@@ -521,7 +533,7 @@ pub fn mount() -> RouterBuilder<Shared> {
             id: i32,
             name: String,
             description: String,
-            compte_id: i32,
+            compte_id: Option<i32>,
             timeframe: String,
             paire: String,
         }
@@ -544,7 +556,7 @@ pub fn mount() -> RouterBuilder<Shared> {
                         optimisation::description::set(description),
                         optimisation::timeframe::set(timeframe),
                         optimisation::paire::set(paire),
-                        optimisation::compte::connect(compte::id::equals(compte_id))
+                        optimisation::compte_id::set(compte_id)
                     ]
                 )
                 .exec()

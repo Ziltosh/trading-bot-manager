@@ -56,7 +56,7 @@ export const RobotDetails = () => {
 
                 <p>{data?.description}</p>
                 <H3>Paramètres</H3>
-                <div className="rounded-lg bg-gray-100 p-2">
+                <div className="rounded-lg bg-gray-100 p-2 text-black">
                     TODO: Pouvoir enregistrer des set de paramètres préconfigurés avec des tags pour vos robots et les
                     charger lors de la création d'une optimisation.
                 </div>
