@@ -46,6 +46,8 @@ export type XlsmOptimisationData = { periodes: string[]; resultats: string[]; dr
 
 export type CompteCreateArgs = { name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string; serveur: string; status: string }
 
+export type OptimisationDeleteArgs = { id: number }
+
 export type OptimisationPeriodeUpsertArgs = { optimisation_id: number; periode: string; profit: number; drawdown: number }
 
 export type GetOptimisationDataArgs = { path: string; nb_periodes: number }
@@ -66,13 +68,13 @@ export type GetPassageDataArgs = { path: string; passage: number }
 
 export type GetSetDataArgs = { path: string }
 
+export type OptimisationPeriode = { id: number; optimisationId: number; periode: string; profit: number; drawdown: number }
+
 export type TagRobotCreateArgs = { tag: string; robot_id: number }
 
 export type CheckXlsmExistsArgs = { path: string }
 
 export type XlsmPassageData = { parametres: string[] }
-
-export type OptimisationPeriode = { id: number; optimisationId: number; periode: string; profit: number; drawdown: number }
 
 export type RobotDeleteArgs = { id: number }
 
@@ -88,15 +90,13 @@ export type RobotCreateArgs = { name: string; description: string; json_settings
 
 export type OptimisationCreateArgs = { name: string; description: string; robot_id: number; compte_id: number | null; robot_name: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; app_data_dir: string }
 
-export type OptimisationDeleteArgs = { id: number }
+export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number | null; timeframe: string; paire: string }
 
 export type Tag = { id: number; cible: string; name: string }
 
 export type Robot = { id: number; name: string; description: string; json_settings: string }
 
 export type XlsmBasicData = { capital: number; date_debut: string; decalage_court: number; decalage_court_unite: string; decalage_long: number; decalage_long_unite: string }
-
-export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number | null; timeframe: string; paire: string }
 
 export type OptimisationGetByIdArgs = { id: number }
 
