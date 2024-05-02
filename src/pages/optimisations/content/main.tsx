@@ -161,7 +161,7 @@ export const OptimisationContentMain = () => {
                     );
                 },
                 cell: ({ row }) => {
-                    return <div className={"flex items-center gap-2"}>{row.original.compte.name}</div>;
+                    return <div className={"flex items-center gap-2"}>{row.original.compte?.name || "Aucun"}</div>;
                 },
             }),
             columnHelper.accessor("capital", {

@@ -429,7 +429,7 @@ pub fn mount() -> RouterBuilder<Shared> {
             name: String,
             description: String,
             robot_id: i32,
-            compte_id: i32,
+            compte_id: Option<i32>,
             robot_name: String,
             capital: f64,
             date_debut: String,
@@ -483,25 +483,47 @@ pub fn mount() -> RouterBuilder<Shared> {
             println!("new xlsm path: {:?}", new_xlsm_path);
             fs::copy(xlsm_path.clone(), new_xlsm_path.clone()).unwrap().to_string();
 
-            let optimisation = ctx.client
-                .optimisation().create(
-                robot::id::equals(robot_id),
-                name,
-                description,
-                capital,
-                date_debut,
-                decalage_ct,
-                decalage_ct_unit,
-                decalage_lt,
-                decalage_lt_unit,
-                timeframe,
-                paire,
-                new_set_path,
-                new_xlsm_path,
-                vec![
-                    optimisation::compte::connect(compte::id::equals(compte_id))
-                ],
-            ).exec().await?;
+            let optimisation;
+
+            if (compte_id.is_none()) {
+                optimisation = ctx.client
+                    .optimisation().create(
+                    robot::id::equals(robot_id),
+                    name,
+                    description,
+                    capital,
+                    date_debut,
+                    decalage_ct,
+                    decalage_ct_unit,
+                    decalage_lt,
+                    decalage_lt_unit,
+                    timeframe,
+                    paire,
+                    new_set_path,
+                    new_xlsm_path,
+                    vec![],
+                ).exec().await?;
+            } else {
+                optimisation = ctx.client
+                    .optimisation().create(
+                    robot::id::equals(robot_id),
+                    name,
+                    description,
+                    capital,
+                    date_debut,
+                    decalage_ct,
+                    decalage_ct_unit,
+                    decalage_lt,
+                    decalage_lt_unit,
+                    timeframe,
+                    paire,
+                    new_set_path,
+                    new_xlsm_path,
+                    vec![
+                        optimisation::compte_id::set(compte_id)
+                    ],
+                ).exec().await?;
+            }
 
             Ok(optimisation)
         })
