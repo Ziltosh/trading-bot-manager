@@ -25,7 +25,7 @@ interface PopupPortfolioAddProps {
 }
 
 export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
-    const fileNameRegex = /^[^<>:"/\\|?*]+$/;
+    // const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [errorMessage] = useState("");
@@ -41,6 +41,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
         { value: "Safe" },
         { value: "Aggressif" },
         { value: "Prop firm" },
+        { value: "Non Trading DD" },
     ]);
     const [timeframes] = useState(["M1", "M5", "M15", "M30", "H1", "H4", "D"]);
     // const [optimisationName, setOptimisationName] = useState(
@@ -74,7 +75,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
     const formSchema = z.object({
         // name: z.string().min(4).max(25).regex(fileNameRegex, "Cacactères non autorisés"),
         robot_id: z.string().refine((val) => isInteger(parseInt(val, 10)) && parseInt(val, 10) > 0),
-        compte_id: z.string().refine((val) => isInteger(parseInt(val, 10)) && parseInt(val, 10) > 0),
+        compte_id: z.string().optional(),
         description: z.string(),
         capital: z.number(),
         date_debut: z.string(),
@@ -145,7 +146,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                 ...values,
                 name: optimisationName,
                 robot_id: parseInt(values.robot_id, 10),
-                compte_id: parseInt(values.compte_id, 10),
+                compte_id: values.compte_id ? parseInt(values.compte_id, 10) : null,
                 app_data_dir: await appDataDir(),
                 robot_name: dataRobotsAll!.find((robot) => robot.id === parseInt(values.robot_id, 10))!.name,
             };
