@@ -12,7 +12,7 @@ export const CompteContentMain = () => {
 
     return (
         <div className={"flex flex-col gap-2 overflow-y-scroll"}>
-            <div className="rounded-md bg-gray-100 p-2">TODO: Editer les comptes.</div>
+            <div className="rounded-md bg-gray-100 p-2 text-black">TODO: Editer les comptes.</div>
 
             <H2>Comptes réel</H2>
             <CompteContentReel />

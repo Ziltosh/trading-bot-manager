@@ -43,6 +43,13 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
         { value: "Prop firm" },
     ]);
     const [timeframes] = useState(["M1", "M5", "M15", "M30", "H1", "H4", "D"]);
+    // const [optimisationName, setOptimisationName] = useState(
+    //     "OP #" +
+    //         Math.floor(Math.random() * 10_000_000)
+    //             .toString(16)
+    //             .toUpperCase()
+    //             .padStart(6, "0"),
+    // );
 
     const queryClient = useQueryClient();
 
@@ -65,7 +72,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
     });
 
     const formSchema = z.object({
-        name: z.string().min(4).max(25).regex(fileNameRegex, "Cacactères non autorisés"),
+        // name: z.string().min(4).max(25).regex(fileNameRegex, "Cacactères non autorisés"),
         robot_id: z.string().refine((val) => isInteger(parseInt(val, 10)) && parseInt(val, 10) > 0),
         compte_id: z.string().refine((val) => isInteger(parseInt(val, 10)) && parseInt(val, 10) > 0),
         description: z.string(),
@@ -92,12 +99,6 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
         resolver: zodResolver(formSchema),
         mode: "onChange",
         defaultValues: {
-            name:
-                "OP #" +
-                Math.floor(Math.random() * 10_000_000)
-                    .toString(16)
-                    .toUpperCase()
-                    .padStart(6, "0"),
             description: "",
             paire: "EURUSD",
             timeframe: "H4",
@@ -135,30 +136,40 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsCreating(true);
 
-        const args: OptimisationCreateArgs = {
-            ...values,
-            robot_id: parseInt(values.robot_id, 10),
-            compte_id: parseInt(values.compte_id, 10),
-            app_data_dir: await appDataDir(),
-            robot_name: dataRobotsAll!.find((robot) => robot.id === parseInt(values.robot_id, 10))!.name,
-        };
-        console.log(args);
-        const optimisation = await rspcClient.mutation(["optimisations.create", args]);
-        console.log(optimisation);
-        for (let i = 0; i < values.tags.length; i++) {
-            await rspcClient.mutation([
-                "tags.create_for_optimisation",
-                {
-                    tag: values.tags[i].value,
-                    optimisation_id: optimisation.id,
-                },
-            ]);
-        }
-        //
-        await queryClient.invalidateQueries({ queryKey: ["optimisations.all"] });
+        try {
+            const nomRobot = dataRobotsAll!.find((robot) => robot.id === parseInt(values.robot_id, 10))!.name;
 
+            const optimisationName = `${nomRobot} - ${values.paire} - ${values.timeframe}`;
+
+            const args: OptimisationCreateArgs = {
+                ...values,
+                name: optimisationName,
+                robot_id: parseInt(values.robot_id, 10),
+                compte_id: parseInt(values.compte_id, 10),
+                app_data_dir: await appDataDir(),
+                robot_name: dataRobotsAll!.find((robot) => robot.id === parseInt(values.robot_id, 10))!.name,
+            };
+            console.log(args);
+            const optimisation = await rspcClient.mutation(["optimisations.create", args]);
+            console.log(optimisation);
+            for (let i = 0; i < values.tags.length; i++) {
+                await rspcClient.mutation([
+                    "tags.create_for_optimisation",
+                    {
+                        tag: values.tags[i].value,
+                        optimisation_id: optimisation.id,
+                    },
+                ]);
+            }
+            //
+            await queryClient.invalidateQueries({ queryKey: ["optimisations.all"] });
+
+            onClosePopup();
+        } catch (e) {
+            console.error(e);
+            // setError(e.message);
+        }
         setIsCreating(false);
-        onClosePopup();
     };
 
     return (

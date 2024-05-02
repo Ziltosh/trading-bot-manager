@@ -10,10 +10,10 @@ export type Procedures = {
         { key: "db.migrate_and_populate", input: never, result: null } | 
         { key: "openInDefault", input: string, result: null } | 
         { key: "optimisation_periodes.get_by_optimisation_id", input: OptimisationPeriodeGetByOptimisationIdArgs, result: OptimisationPeriode[] } | 
-        { key: "optimisations.all", input: never, result: { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null; tags: { optimisationId: number; tagId: number; tag: { name: string } }[]; robot: { name: string } }[] } | 
+        { key: "optimisations.all", input: never, result: { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null; tags: { optimisationId: number; tagId: number; tag: { name: string } }[]; robot: { name: string }; compte: { name: string } | null }[] } | 
         { key: "optimisations.check_xlsm_exists", input: CheckXlsmExistsArgs, result: boolean } | 
-        { key: "optimisations.get_by_compte_id", input: OptimisationGetByCompteIdArgs, result: { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null; tags: { optimisationId: number; tagId: number; tag: { name: string } }[]; robot: { name: string } }[] } | 
-        { key: "optimisations.get_by_id", input: OptimisationGetByIdArgs, result: { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null; tags: { optimisationId: number; tagId: number; tag: { name: string } }[]; robot: { name: string } } | null } | 
+        { key: "optimisations.get_by_compte_id", input: OptimisationGetByCompteIdArgs, result: { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null; tags: { optimisationId: number; tagId: number; tag: { name: string } }[]; robot: { name: string }; compte: { name: string } | null }[] } | 
+        { key: "optimisations.get_by_id", input: OptimisationGetByIdArgs, result: { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null; tags: { optimisationId: number; tagId: number; tag: { name: string } }[]; robot: { name: string }; compte: { name: string } | null } | null } | 
         { key: "optimisations.get_set_data", input: GetSetDataArgs, result: string } | 
         { key: "optimisations.get_xlsm_basic_data", input: GetBasicDataArgs, result: XlsmBasicData } | 
         { key: "optimisations.get_xlsm_lancement_data", input: GetLancementDataArgs, result: XlsmLancementData } | 
@@ -40,17 +40,19 @@ export type Procedures = {
     subscriptions: never
 };
 
-export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number; timeframe: string; paire: string }
+export type XlsmLancementData = { nb_periodes: number; pct_periodes_rentables: string; resultat_total: number; periode_resultat_moyen: number; periode_meilleur_resultat: number; periode_pire_resultat: number; dd_max: number; check_periode_validation_debut: string; check_periode_validation_fin: string; check_passage: number; check_resultat: number; check_resultat_mensuel: string; check_dd: number; check_trades: number }
 
-export type OptimisationGetByCompteIdArgs = { compte_id: number }
+export type XlsmOptimisationData = { periodes: string[]; resultats: string[]; drawdowns: string[] }
 
 export type CompteCreateArgs = { name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string; serveur: string; status: string }
 
 export type OptimisationPeriodeUpsertArgs = { optimisation_id: number; periode: string; profit: number; drawdown: number }
 
+export type GetOptimisationDataArgs = { path: string; nb_periodes: number }
+
 export type GetLancementDataArgs = { path: string }
 
-export type GetOptimisationDataArgs = { path: string; nb_periodes: number }
+export type OptimisationGetByCompteIdArgs = { compte_id: number }
 
 export type CompteGetByIdArgs = { id: number }
 
@@ -58,50 +60,48 @@ export type Optimisation = { id: number; robotId: number; name: string; descript
 
 export type RobotGetByIdArgs = { id: number }
 
-export type XlsmBasicData = { capital: number; date_debut: string; decalage_court: number; decalage_court_unite: string; decalage_long: number; decalage_long_unite: string }
-
 export type OptimisationPeriodeGetByOptimisationIdArgs = { optimisation_id: number }
 
-export type OptimisationGetByIdArgs = { id: number }
+export type GetPassageDataArgs = { path: string; passage: number }
+
+export type GetSetDataArgs = { path: string }
 
 export type TagRobotCreateArgs = { tag: string; robot_id: number }
 
-export type GetBasicDataArgs = { path: string }
+export type CheckXlsmExistsArgs = { path: string }
+
+export type XlsmPassageData = { parametres: string[] }
 
 export type OptimisationPeriode = { id: number; optimisationId: number; periode: string; profit: number; drawdown: number }
 
-export type RobotDeleteArgs = { id: number }
+export type OptimisationDeleteArgs = { id: number }
 
-export type XlsmPassageData = { parametres: string[] }
+export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number | null; timeframe: string; paire: string }
+
+export type RobotDeleteArgs = { id: number }
 
 export type Compte = { id: number; name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string | null; serveur: string; status: string }
 
 export type OpenSetFileArgs = { path: string }
 
-export type XlsmOptimisationData = { periodes: string[]; resultats: string[]; drawdowns: string[] }
-
 export type TagOptimisationCreateArgs = { tag: string; optimisation_id: number }
-
-export type GetSetDataArgs = { path: string }
 
 export type CompteDeleteArgs = { id: number }
 
-export type CheckXlsmExistsArgs = { path: string }
-
 export type RobotCreateArgs = { name: string; description: string; json_settings: string }
 
-export type GetPassageDataArgs = { path: string; passage: number }
-
-export type XlsmLancementData = { nb_periodes: number; pct_periodes_rentables: string; resultat_total: number; periode_resultat_moyen: number; periode_meilleur_resultat: number; periode_pire_resultat: number; dd_max: number; check_periode_validation_debut: string; check_periode_validation_fin: string; check_passage: number; check_resultat: number; check_resultat_mensuel: string; check_dd: number; check_trades: number }
+export type OptimisationCreateArgs = { name: string; description: string; robot_id: number; compte_id: number; robot_name: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; app_data_dir: string }
 
 export type Tag = { id: number; cible: string; name: string }
 
 export type Robot = { id: number; name: string; description: string; json_settings: string }
 
-export type OptimisationCreateArgs = { name: string; description: string; robot_id: number; compte_id: number; robot_name: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; app_data_dir: string }
+export type XlsmBasicData = { capital: number; date_debut: string; decalage_court: number; decalage_court_unite: string; decalage_long: number; decalage_long_unite: string }
 
-export type OptimisationDeleteArgs = { id: number }
+export type OptimisationGetByIdArgs = { id: number }
 
 export type OptimisationPeriodeDeleteOptimisationIdArgs = { optimisation_id: number }
 
 export type TagCompteCreateArgs = { tag: string; compte_id: number }
+
+export type GetBasicDataArgs = { path: string }

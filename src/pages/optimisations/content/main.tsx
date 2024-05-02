@@ -128,7 +128,25 @@ export const OptimisationContentMain = () => {
                     return <div className={"flex items-center gap-2"}>{row.getValue("name")}</div>;
                 },
             }),
-            columnHelper.accessor("robot", {
+            // columnHelper.accessor("robot", {
+            //     id: "robot",
+            //     header: ({ column }) => {
+            //         return (
+            //             <Button
+            //                 variant="ghost"
+            //                 size={"sm"}
+            //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            //             >
+            //                 Robot
+            //                 <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+            //             </Button>
+            //         );
+            //     },
+            //     cell: ({ row }) => {
+            //         return <div className={"flex items-center gap-2"}>{row.original.robot.name}</div>;
+            //     },
+            // }),
+            columnHelper.accessor("compte", {
                 id: "robot",
                 header: ({ column }) => {
                     return (
@@ -137,13 +155,13 @@ export const OptimisationContentMain = () => {
                             size={"sm"}
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                         >
-                            Robot
+                            Compte
                             <ArrowUpDownIcon className="ml-2 h-4 w-4" />
                         </Button>
                     );
                 },
                 cell: ({ row }) => {
-                    return <div className={"flex items-center gap-2"}>{row.original.robot.name}</div>;
+                    return <div className={"flex items-center gap-2"}>{row.original.compte.name}</div>;
                 },
             }),
             columnHelper.accessor("capital", {
@@ -164,42 +182,42 @@ export const OptimisationContentMain = () => {
                     return <PriceFormatted valeur={row.original.capital} />;
                 },
             }),
-            columnHelper.accessor("paire", {
-                id: "paire",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="ghost"
-                            size={"sm"}
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                        >
-                            Paire
-                            <ArrowUpDownIcon className="ml-2 h-4 w-4" />
-                        </Button>
-                    );
-                },
-                cell: ({ row }) => {
-                    return <span>{row.original.paire}</span>;
-                },
-            }),
-            columnHelper.accessor("timeframe", {
-                id: "timeframe",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="ghost"
-                            size={"sm"}
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                        >
-                            TF
-                            <ArrowUpDownIcon className="ml-2 h-4 w-4" />
-                        </Button>
-                    );
-                },
-                cell: ({ row }) => {
-                    return <span>{row.original.timeframe}</span>;
-                },
-            }),
+            // columnHelper.accessor("paire", {
+            //     id: "paire",
+            //     header: ({ column }) => {
+            //         return (
+            //             <Button
+            //                 variant="ghost"
+            //                 size={"sm"}
+            //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            //             >
+            //                 Paire
+            //                 <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+            //             </Button>
+            //         );
+            //     },
+            //     cell: ({ row }) => {
+            //         return <span>{row.original.paire}</span>;
+            //     },
+            // }),
+            // columnHelper.accessor("timeframe", {
+            //     id: "timeframe",
+            //     header: ({ column }) => {
+            //         return (
+            //             <Button
+            //                 variant="ghost"
+            //                 size={"sm"}
+            //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            //             >
+            //                 TF
+            //                 <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+            //             </Button>
+            //         );
+            //     },
+            //     cell: ({ row }) => {
+            //         return <span>{row.original.timeframe}</span>;
+            //     },
+            // }),
             columnHelper.accessor("tags", {
                 id: "tags",
                 header: () => <span>Tags</span>,

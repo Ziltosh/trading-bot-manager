@@ -14,7 +14,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { useGlobalStore } from "@/stores/global-store.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
-import isInteger = util.isInteger;
 
 interface PopupPortfolioEditProps {
     onClosePopup: () => void;
@@ -45,10 +44,10 @@ export const PopupOptimisationEdit = ({ onClosePopup }: PopupPortfolioEditProps)
     });
 
     const formSchema = z.object({
-        name: z.string().min(4).max(25).regex(fileNameRegex, "Cacactères non autorisés"),
+        name: z.string().min(4).max(50).regex(fileNameRegex, "Cacactères non autorisés"),
         description: z.string(),
         capital: z.number(),
-        compte_id: z.string().refine((val) => isInteger(parseInt(val, 10)) && parseInt(val, 10) > 0),
+        compte_id: z.string().optional(),
         timeframe: z.string().refine((val) => ["M1", "M5", "M15", "M30", "H1", "H4", "D"].includes(val)),
         paire: z.string().length(6),
     });
@@ -61,6 +60,7 @@ export const PopupOptimisationEdit = ({ onClosePopup }: PopupPortfolioEditProps)
             capital: optimisation?.capital,
             description: optimisation?.description,
             paire: optimisation?.paire,
+            compte_id: optimisation?.compteId?.toString(),
             timeframe: optimisation?.timeframe,
         },
     });
@@ -84,7 +84,7 @@ export const PopupOptimisationEdit = ({ onClosePopup }: PopupPortfolioEditProps)
                 id: optimisation!.id,
                 name: values.name,
                 description: values.description,
-                compte_id: parseInt(values.compte_id, 10),
+                compte_id: values.compte_id ? parseInt(values.compte_id, 10) : null,
                 paire: values.paire,
                 timeframe: values.timeframe,
             },
