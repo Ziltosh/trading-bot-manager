@@ -42,6 +42,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
         { value: "Aggressif" },
         { value: "Prop firm" },
         { value: "Non Trading DD" },
+        { value: "Tick par tick" },
     ]);
     const [timeframes] = useState(["M1", "M5", "M15", "M30", "H1", "H4", "D"]);
     // const [optimisationName, setOptimisationName] = useState(

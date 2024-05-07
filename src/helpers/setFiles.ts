@@ -90,3 +90,44 @@ export function generateSetFromParams(params: XlsmPassageData): string {
 
     return convertJsonToSet(json);
 }
+
+export function mergeSetParams(defaultSettingsText: string, modifiedSettingsText: string) {
+    const defaultSettings = parseSettings(defaultSettingsText);
+    const modifiedSettings = parseSettings(modifiedSettingsText);
+
+    // Construire le résultat final en vérifiant les modifications
+    let mergedSettings = defaultSettingsText;
+    for (const key in modifiedSettings) {
+        if (
+            Object.prototype.hasOwnProperty.call(modifiedSettings, key) &&
+            Object.prototype.hasOwnProperty.call(defaultSettings, `${key}`)
+        ) {
+            // Remplacer la valeur par défaut avec la valeur modifiée
+            const regex = new RegExp(`(${key}=)([^\n\r]*)`, "gm");
+            mergedSettings = mergedSettings.replace(regex, `$1${modifiedSettings[key]}`);
+        }
+    }
+
+    return mergedSettings;
+}
+
+// Définition de l'interface pour les paramètres
+interface ParamSettings {
+    [key: string]: string | number;
+}
+
+// Fonction pour parser les paramètres depuis un texte
+function parseSettings(text: string): ParamSettings {
+    const settings: ParamSettings = {};
+    const lines = text.split("\n");
+    for (const line of lines) {
+        // Ignorer les lignes vides ou qui ne contiennent pas '='
+        if (line.includes("=")) {
+            const [key, value] = line.split("=");
+            if (key && value !== undefined) {
+                settings[key.trim()] = value.trim();
+            }
+        }
+    }
+    return settings;
+}
