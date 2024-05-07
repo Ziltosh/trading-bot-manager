@@ -5,13 +5,13 @@ import { convertToDate } from "@/helpers/periode.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { useQuery } from "@tanstack/react-query";
 import { rspcClient } from "@/helpers/rspc.ts";
-import { generateSetFromParams } from "@/helpers/setFiles.ts";
+import { generateSetFromParams, mergeSetParams } from "@/helpers/setFiles.ts";
 import { save } from "@tauri-apps/api/dialog";
 import { documentDir } from "@tauri-apps/api/path";
 import { writeTextFile } from "@tauri-apps/api/fs";
 
 interface OptimisationTabLancementProps {
-    dataOpById: { id: number; xlsm_path: string; name: string; paire: string };
+    dataOpById: { id: number; xlsm_path: string; name: string; paire: string; set_path: string };
 }
 
 export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancementProps) => {
@@ -54,7 +54,7 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
     });
 
     const handleSaveSet = async () => {
-        const params = await rspcClient.query([
+        const passageParamsStr = await rspcClient.query([
             "optimisations.get_xlsm_passage_data",
             {
                 path: dataOpById!.xlsm_path,
@@ -62,7 +62,15 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
             },
         ]);
 
-        const file = generateSetFromParams(params);
+        const optiSetParams = await rspcClient.query([
+            "optimisations.get_set_data",
+            {
+                path: dataOpById!.set_path,
+            },
+        ]);
+
+        const passageSetParams = generateSetFromParams(passageParamsStr);
+        const file = mergeSetParams(optiSetParams, passageSetParams);
         const savePath = await save({
             defaultPath:
                 (await documentDir()) +
