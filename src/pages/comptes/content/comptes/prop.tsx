@@ -33,7 +33,7 @@ export const CompteContentProp = () => {
         queryKey: ["comptes", "get_prop"],
         queryFn: () => {
             if (tourActive)
-                return new Promise((resolve) => {
+                return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_prop">>((resolve) => {
                     resolve([]);
                 });
 

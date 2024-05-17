@@ -51,13 +51,13 @@ export const RobotContentMain = () => {
         queryFn: () => {
             if (!tourActive) return rspcClient.query(["robots.all"]);
 
-            return new Promise((resolve) => {
+            return new Promise<inferProcedureResult<Procedures, "queries", "robots.all">>((resolve) => {
                 resolve([
                     {
                         id: 1,
                         name: "Robot test",
                         description: "Description",
-                        json_settings: {},
+                        json_settings: "{}",
                         tags: [{ robotId: 1, tagId: 1, tag: { name: "Tag test" } }],
                     },
                 ]);

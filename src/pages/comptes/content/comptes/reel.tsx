@@ -34,7 +34,7 @@ export const CompteContentReel = () => {
         queryFn: () => {
             if (!tourActive) return rspcClient.query(["comptes.get_reel"]);
 
-            return new Promise((resolve) => {
+            return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_reel">>((resolve) => {
                 resolve([
                     {
                         id: 1,
@@ -45,7 +45,10 @@ export const CompteContentReel = () => {
                         numero: "123456",
                         plateforme: "mt4",
                         status: "Actif",
-                        tags: [{ tagId: 1, tag: { name: "Tag 1" } }],
+                        tags: [{ tagId: 1, tag: { name: "Tag 1" }, compteId: 1 }],
+                        type_compte: "reel",
+                        password: "password",
+                        serveur: "serveur",
                     },
                 ]);
             });

@@ -41,7 +41,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
     useMount(() => {
         if (tourActive) {
             setTimeout(() => {
-                setState({ run: true, stepIndex: TourSteps.TOUR_ROBOT_ADD_POPUP });
+                setState({ run: true, stepIndex: TourSteps.TOUR_ROBOT_ADD_NAME });
             }, 100);
         }
     });
