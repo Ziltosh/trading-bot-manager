@@ -18,6 +18,9 @@ import { rspcClient } from "@/helpers/rspc.ts";
 import { Separator } from "@/components/ui/separator.tsx";
 import { OptimisationCreateArgs } from "@/rspc_bindings.ts";
 import { appDataDir } from "@tauri-apps/api/path";
+import useAppContext from "@/hooks/useAppContext.ts";
+import { useMount } from "react-use";
+import { TourSteps } from "@/WelcomeTourSteps.ts";
 import isInteger = util.isInteger;
 
 interface PopupPortfolioAddProps {
@@ -25,6 +28,21 @@ interface PopupPortfolioAddProps {
 }
 
 export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
+    /** TOUR **/
+    const {
+        setState,
+        state: { tourActive },
+    } = useAppContext();
+
+    useMount(() => {
+        if (tourActive) {
+            setTimeout(() => {
+                setState({ run: true, stepIndex: TourSteps.TOUR_OPTIMISATION_ADD_POPUP });
+            }, 100);
+        }
+    });
+    /** END TOUR **/
+
     // const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -183,7 +201,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                 className="m-auto w-2/3 flex-col gap-2 rounded-lg border bg-background p-4 shadow-md"
                 onClick={(e) => e.stopPropagation()}
             >
-                <H2>Ajouter une optimisation</H2>
+                <H2 className={"tour-optimisations-add-popup"}>Ajouter une optimisation</H2>
                 {isError && (
                     <Alert variant={"destructive"} className={"w-max"}>
                         <AlertCircle className={"h-4 w-4"} />

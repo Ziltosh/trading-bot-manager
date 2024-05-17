@@ -8,19 +8,15 @@
  *   <HomePage />
  * )
  */
-import {Layout} from "@/pages/layout.tsx";
-import {RobotsSidebar} from "@/pages/robots/sidebar.tsx";
-import {RobotsContent} from "@/pages/robots/content.tsx";
+import { Outlet, useLocation } from "react-router-dom";
+import { RobotContentMain } from "@/pages/robots/content/main.tsx";
 
 export const RobotsPage = () => {
+    const location = useLocation();
+
     return (
-        /**
-         * The `Layout` component is used here with `HomeSidebar` and `HomeContent` passed as props.
-         * `HomeSidebar` will be displayed in the sidebar area of the layout.
-         * `HomeContent` will be displayed in the content area of the layout.
-         */
-        <>
-            <Layout sidebar={<RobotsSidebar/>} content={<RobotsContent/>}/>
-        </>
-    )
-}
+        <div className="relative flex h-full w-full flex-col p-2">
+            {location.pathname === "/robots" ? <RobotContentMain /> : <Outlet />}
+        </div>
+    );
+};

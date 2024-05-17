@@ -23,12 +23,30 @@ import { RobotCreateArgs } from "@/rspc_bindings.ts";
 import { open } from "@tauri-apps/api/dialog";
 import { convertSetToJson } from "@/helpers/setFiles.ts";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMount } from "react-use";
+import useAppContext from "@/hooks/useAppContext.ts";
+import { TourSteps } from "@/WelcomeTourSteps.ts";
 
 interface PopupPortfolioAddProps {
     onClosePopup: () => void;
 }
 
 export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
+    /** TOUR **/
+    const {
+        setState,
+        state: { tourActive },
+    } = useAppContext();
+
+    useMount(() => {
+        if (tourActive) {
+            setTimeout(() => {
+                setState({ run: true, stepIndex: TourSteps.TOUR_ROBOT_ADD_POPUP });
+            }, 100);
+        }
+    });
+    /** END TOUR **/
+
     const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -143,7 +161,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             control={form.control}
                             name={"name"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-robots-add-name"}>
                                     <FormLabel>Nom du robot</FormLabel>
                                     <FormControl>
                                         <Input {...field} />
@@ -157,7 +175,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             control={form.control}
                             name={"description"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-robots-add-desc"}>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
                                         <Textarea {...field} />
@@ -167,79 +185,81 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             )}
                         />
 
-                        <FormLabel>Tags</FormLabel>
-                        <div className={"flex flex-row flex-wrap gap-2"}>
-                            {fields.map((field, index) => (
-                                <div key={`div_${field.id}`}>
+                        <div className="tour-robots-add-tags">
+                            <FormLabel>Tags</FormLabel>
+                            <div className={"flex flex-row flex-wrap gap-2"}>
+                                {fields.map((field, index) => (
+                                    <div key={`div_${field.id}`}>
+                                        <Badge
+                                            key={`badge_${field.id}`}
+                                            variant={"secondary"}
+                                            className={"cursor-pointer bg-accent"}
+                                            onClick={() => remove(index)}
+                                        >
+                                            {field.value}
+                                        </Badge>
+                                        <FormField
+                                            control={form.control}
+                                            key={field.id}
+                                            name={`tags.${index}.value`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input className={"hidden"} {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <FormLabel>Ajouter un tag</FormLabel>
+                            <div className="flex flex-wrap gap-2">
+                                {defaultTags.map((tag, index) => (
                                     <Badge
-                                        key={`badge_${field.id}`}
-                                        variant={"secondary"}
-                                        className={"cursor-pointer bg-accent"}
-                                        onClick={() => remove(index)}
-                                    >
-                                        {field.value}
-                                    </Badge>
-                                    <FormField
-                                        control={form.control}
-                                        key={field.id}
-                                        name={`tags.${index}.value`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <Input className={"hidden"} {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        <FormLabel>Ajouter un tag</FormLabel>
-                        <div className="flex flex-wrap gap-2">
-                            {defaultTags.map((tag, index) => (
-                                <Badge
-                                    key={`badge_${index}`}
-                                    variant={
-                                        fields.filter((el) => el.value === tag.value).length > 0
-                                            ? "outline"
-                                            : "secondary"
-                                    }
-                                    className={
-                                        fields.filter((el) => el.value === tag.value).length === 0
-                                            ? "cursor-pointer hover:bg-accent"
-                                            : ""
-                                    }
-                                    onClick={() => {
-                                        if (fields.filter((el) => el.value === tag.value).length === 0) {
-                                            append({ value: tag.value });
+                                        key={`badge_${index}`}
+                                        variant={
+                                            fields.filter((el) => el.value === tag.value).length > 0
+                                                ? "outline"
+                                                : "secondary"
                                         }
-                                    }}
-                                >
-                                    {tag.value}
-                                </Badge>
-                            ))}
+                                        className={
+                                            fields.filter((el) => el.value === tag.value).length === 0
+                                                ? "cursor-pointer hover:bg-accent"
+                                                : ""
+                                        }
+                                        onClick={() => {
+                                            if (fields.filter((el) => el.value === tag.value).length === 0) {
+                                                append({ value: tag.value });
+                                            }
+                                        }}
+                                    >
+                                        {tag.value}
+                                    </Badge>
+                                ))}
+                            </div>
+                            <Input
+                                type={"text"}
+                                placeholder={"Tag personnalisé, entrée pour valider"}
+                                onKeyDown={(e) => {
+                                    // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        append({ value: e.currentTarget.value });
+                                        e.currentTarget.value = "";
+                                    }
+                                }}
+                            />
                         </div>
-                        <Input
-                            type={"text"}
-                            placeholder={"Tag personnalisé, entrée pour valider"}
-                            onKeyDown={(e) => {
-                                // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    append({ value: e.currentTarget.value });
-                                    e.currentTarget.value = "";
-                                }
-                            }}
-                        />
 
                         <FormField
                             control={form.control}
                             name={"json_settings"}
                             render={({ field }) => (
-                                <FormItem className={"flex flex-col"}>
+                                <FormItem className={"tour-robots-add-set flex flex-col"}>
                                     <FormLabel>Fichier .set</FormLabel>
-                                    <Input {...field} className={"hidden"} readOnly={true} />
+                                    <Input {...field} readOnly={true} />
                                     <FormDescription>
                                         Pensez à bien utiliser la "Remise à zéro" des paramètres via MetaTrader avant
                                         d'envoyer le fichier. Ca permettra de pouvoir comparer les settings par défaut
@@ -272,7 +292,11 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             <Button type={"button"} variant={"secondary"} onClick={onClosePopup}>
                                 Annuler
                             </Button>
-                            <Button type="submit" disabled={isCreating} className={"self-center"}>
+                            <Button
+                                type="submit"
+                                disabled={isCreating}
+                                className={"tour-robots-add-create self-center"}
+                            >
                                 {isCreating ? "Création en cours..." : "Créer"}
                             </Button>
                         </div>

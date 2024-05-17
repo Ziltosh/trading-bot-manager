@@ -1,5 +1,5 @@
 import { H2, H3 } from "@/components/ui/typos.tsx";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { rspcClient } from "@/helpers/rspc.ts";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
@@ -19,6 +19,7 @@ interface AllOptiData {
 export const HomeContentDetails = () => {
     const { id } = useParams();
     const [allPeriodes, setAllPeriodes] = useState<{ periode: string; resultat: number; dd: number }[]>([]);
+    const navigate = useNavigate();
 
     // {dataOptiData?.map((opti) => {
     //     if (opti.infos.decalage_ct_unit !== "mois") return <></>;
@@ -108,6 +109,10 @@ export const HomeContentDetails = () => {
         return null;
     }
 
+    const handleViewOptimisation = (optimisationId: number) => {
+        navigate(`/optimisations/${optimisationId}`);
+    };
+
     return (
         <div className={"flex flex-col gap-2 overflow-y-scroll"}>
             <H2>{dataCompteById?.name}</H2>
@@ -163,7 +168,10 @@ export const HomeContentDetails = () => {
                 dataOptiByCompte?.map((opti) => (
                     <Table>
                         <TableBody>
-                            <TableRow>
+                            <TableRow
+                                className={"cursor-pointer hover:bg-accent"}
+                                onClick={() => handleViewOptimisation(opti.id)}
+                            >
                                 <TableCell className={"w-1/3 p-1"}>{opti.name}</TableCell>
                                 <TableCell className={"w-1/3 p-1 text-center"}>{opti.paire}</TableCell>
                                 <TableCell className={"w-1/3 p-1 text-center"}>{opti.timeframe}</TableCell>

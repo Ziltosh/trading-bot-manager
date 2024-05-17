@@ -20,11 +20,23 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { ComptePropDataTable } from "@/components/ui/custom/comptes/prop-datatable.tsx";
+import useAppContext from "@/hooks/useAppContext.ts";
 
 export const CompteContentProp = () => {
+    /** TOUR **/
+    const {
+        state: { tourActive },
+    } = useAppContext();
+    /** END TOUR **/
+
     const { isSuccess, isPending, data } = useQuery({
         queryKey: ["comptes", "get_prop"],
         queryFn: () => {
+            if (tourActive)
+                return new Promise((resolve) => {
+                    resolve([]);
+                });
+
             return rspcClient.query(["comptes.get_prop"]);
         },
     });
