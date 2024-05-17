@@ -20,12 +20,35 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { CompteReelDataTable } from "@/components/ui/custom/comptes/reel-datatable.tsx";
+import useAppContext from "@/hooks/useAppContext.ts";
 
 export const CompteContentReel = () => {
+    /** TOUR **/
+    const {
+        state: { tourActive },
+    } = useAppContext();
+    /** END TOUR **/
+
     const { isSuccess, isPending, data } = useQuery({
         queryKey: ["comptes", "get_reel"],
         queryFn: () => {
-            return rspcClient.query(["comptes.get_reel"]);
+            if (!tourActive) return rspcClient.query(["comptes.get_reel"]);
+
+            return new Promise((resolve) => {
+                resolve([
+                    {
+                        id: 1,
+                        name: "Compte test",
+                        capital: 1000,
+                        devise: "USD",
+                        courtier: "IC Markets",
+                        numero: "123456",
+                        plateforme: "mt4",
+                        status: "Actif",
+                        tags: [{ tagId: 1, tag: { name: "Tag 1" } }],
+                    },
+                ]);
+            });
         },
     });
 

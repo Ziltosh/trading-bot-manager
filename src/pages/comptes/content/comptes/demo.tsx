@@ -20,11 +20,23 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
 import { useNavigate } from "react-router-dom";
+import useAppContext from "@/hooks/useAppContext.ts";
 
 export const CompteContentDemo = () => {
+    /** TOUR **/
+    const {
+        state: { tourActive },
+    } = useAppContext();
+    /** END TOUR **/
+
     const { isPending, isSuccess, data } = useQuery({
         queryKey: ["comptes", "get_demo"],
         queryFn: () => {
+            if (tourActive)
+                return new Promise((resolve) => {
+                    resolve([]);
+                });
+
             return rspcClient.query(["comptes.get_demo"]);
         },
     });

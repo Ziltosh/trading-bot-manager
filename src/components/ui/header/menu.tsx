@@ -23,9 +23,9 @@ export const Menu = () => {
                         <CustomLink href={"/optimisations"}>Optimisations</CustomLink>
                     </NavigationMenuItem>
 
-                    <NavigationMenuItem>
-                        <CustomLink href={"/outils"}>Outils</CustomLink>
-                    </NavigationMenuItem>
+                    {/*<NavigationMenuItem>*/}
+                    {/*    <CustomLink href={"/outils"}>Outils</CustomLink>*/}
+                    {/*</NavigationMenuItem>*/}
                     {/*<NavigationMenuItem className={"text-muted-foreground"}>*/}
                     {/*    <Tooltip>*/}
                     {/*        <TooltipTrigger>*/}

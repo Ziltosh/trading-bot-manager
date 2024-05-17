@@ -11,7 +11,7 @@ import { inferProcedureResult } from "@rspc/client";
 import { Procedures } from "@/rspc_bindings.ts";
 import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import { $optimisationEditPopup, $optimisationPopup } from "@/signals/components/ui/popups.ts";
+import { $optimisationAddPopup, $optimisationEditPopup } from "@/signals/components/ui/popups.ts";
 import { convertToDate } from "@/helpers/periode.ts";
 import {
     AlertDialog,
@@ -24,14 +24,32 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
 import { useGlobalStore } from "@/stores/global-store.ts";
+import { useMount } from "react-use";
+import useAppContext from "@/hooks/useAppContext.ts";
+import { TourSteps } from "@/WelcomeTourSteps.ts";
 
 export const OptimisationContentMain = () => {
+    /** TOUR **/
+    const {
+        setState,
+        state: { tourActive },
+    } = useAppContext();
+
+    useMount(() => {
+        if (tourActive) {
+            setTimeout(() => {
+                setState({ run: true, stepIndex: TourSteps.TOUR_OPTIMISATION });
+            }, 100);
+        }
+    });
+    /** END TOUR **/
+
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { setCurrentOptimisation } = useGlobalStore();
 
     const handleAddOptimisation = async () => {
-        $optimisationPopup.set(true);
+        $optimisationAddPopup.set(true);
         // console.log(await invoke("test"));
     };
 
@@ -313,7 +331,7 @@ export const OptimisationContentMain = () => {
     );
 
     return (
-        <div className="flex flex-col overflow-y-scroll">
+        <div className="tour-optimisations flex flex-col overflow-y-scroll">
             <H2>Optimisations</H2>
 
             {data?.length === 0 && <p>Aucune optimisation.</p>}
@@ -323,7 +341,12 @@ export const OptimisationContentMain = () => {
                 </div>
             )}
 
-            <Button type={"button"} variant={"default"} onClick={handleAddOptimisation}>
+            <Button
+                className={"tour-optimisations-add"}
+                type={"button"}
+                variant={"default"}
+                onClick={handleAddOptimisation}
+            >
                 Ajouter une optimisation
             </Button>
         </div>
