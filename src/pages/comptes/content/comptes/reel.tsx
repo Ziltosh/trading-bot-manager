@@ -22,6 +22,42 @@ import { useNavigate } from "react-router-dom";
 import { CompteReelDataTable } from "@/components/ui/custom/comptes/reel-datatable.tsx";
 import useAppContext from "@/hooks/useAppContext.ts";
 
+interface MyfxbookAccount {
+    id: number;
+    name: string;
+    description: string;
+    accountId: number;
+    gain: number;
+    absGain: number;
+    daily: string;
+    monthly: string;
+    withdrawals: number;
+    deposits: number;
+    interest: number;
+    profit: number;
+    balance: number;
+    drawdown: number;
+    equity: number;
+    equityPercent: number;
+    demo: boolean;
+    lastUpdateDate: string;
+    creationDate: string;
+    firstTradeDate: string;
+    tracking: number;
+    views: number;
+    commission: number;
+    currency: string;
+    profitFactor: number;
+    pips: number;
+    invitationUrl: string;
+}
+
+interface MyfxbookMyAccountsResponse {
+    error: boolean;
+    message: string;
+    accounts: MyfxbookAccount[];
+}
+
 export const CompteContentReel = () => {
     /** TOUR **/
     const {
@@ -29,7 +65,11 @@ export const CompteContentReel = () => {
     } = useAppContext();
     /** END TOUR **/
 
-    const { isSuccess, isPending, data } = useQuery({
+    const {
+        isSuccess: comptesIsSuccess,
+        isPending: comptesIsPending,
+        data,
+    } = useQuery({
         queryKey: ["comptes", "get_reel"],
         queryFn: () => {
             if (!tourActive) return rspcClient.query(["comptes.get_reel"]);
@@ -55,6 +95,18 @@ export const CompteContentReel = () => {
         },
     });
 
+    const { isSuccess: myfxbookSuccess, data: myfxbookData } = useQuery<MyfxbookMyAccountsResponse>({
+        queryKey: ["myfxbook", "my_accounts"],
+        queryFn: async () => {
+            const res = await fetch(
+                `https://www.myfxbook.com/api/get-my-accounts.json?session=${localStorage.getItem("api-myfxbook-session")}`,
+            );
+            const data = await res.json();
+            console.log(data);
+            return data;
+        },
+    });
+
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
@@ -65,12 +117,15 @@ export const CompteContentReel = () => {
             columnHelper.display({
                 id: "actions",
                 cell: ({ row }) => {
+                    const myfxbookAccount = myfxbookData?.accounts.find(
+                        (acc) => acc.accountId === parseInt(row.original.numero, 10),
+                    );
                     return (
                         <div className="flex gap-1">
                             <Button
                                 className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
-                                onClick={() => handleSelectCompte(row.original.id)}
+                                onClick={() => handleSelectCompte(row.original.id, myfxbookAccount?.id)}
                             >
                                 <EyeIcon className="h-4 w-4" />
                             </Button>
@@ -143,7 +198,25 @@ export const CompteContentReel = () => {
                     );
                 },
                 cell: ({ row }) => {
-                    return <PriceFormatted valeur={row.original.capital} currency={row.original.devise} />;
+                    const myfxbookAccount = myfxbookData?.accounts.find(
+                        (acc) => acc.accountId === parseInt(row.original.numero, 10),
+                    );
+                    return (
+                        <>
+                            <PriceFormatted valeur={row.original.capital} currency={row.original.devise} />
+                            {myfxbookSuccess && myfxbookAccount && (
+                                <div className={"flex gap-1 text-xs"}>
+                                    <PriceFormatted valeur={myfxbookAccount.balance} currency={row.original.devise} /> (
+                                    <PriceFormatted
+                                        valeur={myfxbookAccount.equity - myfxbookAccount.balance}
+                                        withColors={true}
+                                        currency={row.original.devise}
+                                    />
+                                    )
+                                </div>
+                            )}
+                        </>
+                    );
                 },
             }),
             columnHelper.accessor("tags", {
@@ -226,8 +299,8 @@ export const CompteContentReel = () => {
         [columnHelper],
     );
 
-    const handleSelectCompte = (id: number) => {
-        navigate(`/comptes/${id}`);
+    const handleSelectCompte = (id: number, myfxbookId?: number) => {
+        navigate(`/comptes/${id}/${myfxbookId}`);
     };
 
     const handleDeleteCompte = async (id: number) => {
@@ -237,11 +310,7 @@ export const CompteContentReel = () => {
         });
     };
 
-    if (status === "error") {
-        return <p>Error</p>;
-    }
-
-    if (isSuccess) return <CompteReelDataTable data={data} columns={columns} isLoading={isPending} />;
+    if (comptesIsSuccess) return <CompteReelDataTable data={data} columns={columns} isLoading={comptesIsPending} />;
 
     return <p>Error</p>;
 };

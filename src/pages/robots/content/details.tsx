@@ -40,7 +40,7 @@ export const RobotDetails = () => {
 
     if (isSuccess && data) {
         return (
-            <div className={"flex flex-col gap-2"}>
+            <div className={"flex flex-col gap-2 overflow-y-auto"}>
                 <div className="flex">
                     <H2 className={"mr-2 flex-grow"}>{data?.name}</H2>
                     <div className="flex items-center justify-center gap-2">

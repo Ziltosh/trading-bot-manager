@@ -24,7 +24,7 @@ interface DataTableProps<TData, TValue> {
 export function CompteDemoDataTable<TData, TValue>({ columns, data, isLoading = true }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [paginationState, setPaginationState] = useState<PaginationState>({ pageSize: 20, pageIndex: 0 });
+    const [paginationState, setPaginationState] = useState<PaginationState>({ pageSize: 10_000, pageIndex: 0 });
     const [globalFilter, setGlobalFilter] = useState("");
 
     const table = useReactTable({

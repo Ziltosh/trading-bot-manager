@@ -1,13 +1,15 @@
 import { $discret } from "@/signals/components/ui/discret.ts";
 import { useSignal } from "@/hooks/useSignal.ts";
+import { cn } from "@/lib/utils.ts";
 
 interface PriceFormattedProps {
     valeur: number;
     withColors?: boolean;
     currency?: string;
+    className?: string;
 }
 
-export const PriceFormatted = ({ valeur, withColors = false, currency = "EUR" }: PriceFormattedProps) => {
+export const PriceFormatted = ({ valeur, withColors = false, currency = "EUR", className }: PriceFormattedProps) => {
     let classColor = "";
     if (withColors) {
         if (valeur > 0) {
@@ -22,7 +24,7 @@ export const PriceFormatted = ({ valeur, withColors = false, currency = "EUR" }:
     const discretSignal = useSignal($discret);
 
     return (
-        <div className={`${withColors && classColor} ${discretSignal && "blur-sm"}`}>
+        <div className={cn(withColors && classColor, discretSignal && "blur-sm", className)}>
             {Intl.NumberFormat("fr-FR", {
                 style: "currency",
                 currency: currency,
