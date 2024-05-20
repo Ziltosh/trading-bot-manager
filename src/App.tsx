@@ -10,6 +10,7 @@ import {
     $optimisationEditPopup,
     $portfolioAddPopup,
     $robotAddPopup,
+    $settingsPopup,
 } from "@/signals/components/ui/popups.ts";
 import { PopupPortfolioAdd } from "@/components/ui/popup/portfolio-add.tsx";
 import { PopupRobotAdd } from "@/components/ui/popup/robot-add.tsx";
@@ -18,6 +19,7 @@ import { PopupCompteAdd } from "@/components/ui/popup/compte-add.tsx";
 import { PopupOptimisationEdit } from "@/components/ui/popup/optimisation-edit.tsx";
 import { WelcomeTour } from "@/WelcomeTour.tsx";
 import { WelcomeTourProvider } from "@/WelcomeTourContext.tsx";
+import { PopupSettings } from "@/components/ui/popup/settings.tsx";
 
 function App() {
     const portfolioAddPopup = useSignal($portfolioAddPopup);
@@ -25,6 +27,7 @@ function App() {
     const compteAddPopup = useSignal($compteAddPopup);
     const optimisationAddPopup = useSignal($optimisationAddPopup);
     const optimisationEditPopup = useSignal($optimisationEditPopup);
+    const settingsPopup = useSignal($settingsPopup);
 
     return (
         <>
@@ -51,6 +54,14 @@ function App() {
                     <PopupCompteAdd
                         onClosePopup={() => {
                             $compteAddPopup.set(false);
+                        }}
+                    />
+                )}
+
+                {settingsPopup && (
+                    <PopupSettings
+                        onClosePopup={() => {
+                            $settingsPopup.set(false);
                         }}
                     />
                 )}

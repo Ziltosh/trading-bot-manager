@@ -31,13 +31,14 @@ export const HomeContentMain = () => {
             {/*<p>{dbPath}</p>*/}
 
             <div className="flex flex-col gap-2 rounded-md bg-gray-100 p-2 text-black">
-                TODO: Faire une checklist a valider au lancement d'un robot.
+                TODO: Faire des fichiers profil pour MT pour charger automatiquement les bots avec leurs paramètres.
+                <p>Liste des trucs a demander:</p>
                 <ul>
-                    <li>✔ Mettre la bonne unité de temps</li>
-                    <li>✔ Préparer le .set du passage voulu</li>
-                    <li>✔ Charger le bon robot</li>
-                    <li>✔ Changer le Magic Number</li>
-                    <li>✔ Mettre le non trading dd si besoin</li>
+                    <li>✔ Nom de la paire</li>
+                    <li>✔ Chemin du robot dans MT</li>
+                    <li>✔ Mettre le filtre de news (plus tard)</li>
+                    <li>✔ Configurer le filtre de news (plus tard)</li>
+                    <li>✔ Non trading DD (plus tard)</li>
                 </ul>
             </div>
 

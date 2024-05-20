@@ -51,7 +51,7 @@ export const routes = [
                 element: <ComptesPage />,
                 children: [
                     {
-                        path: ":id",
+                        path: ":id/:myfxbookId?",
                         element: <CompteDetails />,
                     },
                 ],

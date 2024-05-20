@@ -132,25 +132,27 @@ export const HomeContentDetails = () => {
                 <Table>
                     <TableBody>
                         <TableRow>
-                            {allPeriodes.map((periode) => {
+                            {allPeriodes.map((periode, index) => {
                                 return (
-                                    <TableCell>{new Date(Date.parse(periode.periode)).toLocaleDateString()}</TableCell>
+                                    <TableCell key={`row-date-${index}`}>
+                                        {new Date(Date.parse(periode.periode)).toLocaleDateString()}
+                                    </TableCell>
                                 );
                             })}
                         </TableRow>
                         <TableRow>
-                            {allPeriodes.map((periode) => {
+                            {allPeriodes.map((periode, index) => {
                                 return (
-                                    <TableCell>
+                                    <TableCell key={`row-prix-${index}`}>
                                         <PriceFormatted valeur={periode.resultat} withColors={true} />
                                     </TableCell>
                                 );
                             })}
                         </TableRow>
                         <TableRow>
-                            {allPeriodes.map((periode) => {
+                            {allPeriodes.map((periode, index) => {
                                 return (
-                                    <TableCell>
+                                    <TableCell key={`row-percent-${index}`}>
                                         <PercentFormatted valeur={periode.dd} />
                                     </TableCell>
                                 );
@@ -160,13 +162,13 @@ export const HomeContentDetails = () => {
                 </Table>
             )}
 
-            <Button disabled>Lancer un robot</Button>
+            <Button disabled>Générer le profil Metatrader 4</Button>
 
             <H3>Liste des robots sur le compte</H3>
 
             {isSuccessOptiByCompte &&
-                dataOptiByCompte?.map((opti) => (
-                    <Table>
+                dataOptiByCompte?.map((opti, index) => (
+                    <Table key={`opti-${index}`}>
                         <TableBody>
                             <TableRow
                                 className={"cursor-pointer hover:bg-accent"}
