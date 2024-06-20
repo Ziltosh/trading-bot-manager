@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { useNavigate } from "react-router-dom";
 import useAppContext from "@/hooks/useAppContext.ts";
+import { MyfxbookMyAccountsResponse } from "@/types/myfxbook.ts";
+import { $compteEditPopup } from "@/signals/components/ui/popups";
+import { useGlobalStore } from "@/stores/global-store";
 
 export const CompteContentDemo = () => {
     /** TOUR **/
@@ -28,6 +31,8 @@ export const CompteContentDemo = () => {
         state: { tourActive },
     } = useAppContext();
     /** END TOUR **/
+
+    const { setCurrentCompte } = useGlobalStore();
 
     const { isPending, isSuccess, data } = useQuery({
         queryKey: ["comptes", "get_demo"],
@@ -38,6 +43,18 @@ export const CompteContentDemo = () => {
                 });
 
             return rspcClient.query(["comptes.get_demo"]);
+        },
+    });
+
+    const { isSuccess: myfxbookSuccess, data: myfxbookData } = useQuery<MyfxbookMyAccountsResponse>({
+        queryKey: ["myfxbook", "my_accounts"],
+        queryFn: async () => {
+            const res = await fetch(
+                `https://www.myfxbook.com/api/get-my-accounts.json?session=${localStorage.getItem("api-myfxbook-session")}`,
+            );
+            const data = await res.json();
+            console.log(data);
+            return data;
         },
     });
 
@@ -61,10 +78,9 @@ export const CompteContentDemo = () => {
                                 <EyeIcon className="h-4 w-4" />
                             </Button>
                             <Button
-                                disabled={true}
                                 className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
-                                onClick={() => null}
+                                onClick={() => handleEditCompte(row.original.id)}
                             >
                                 <PencilIcon className="h-4 w-4" />
                             </Button>
@@ -129,7 +145,25 @@ export const CompteContentDemo = () => {
                     );
                 },
                 cell: ({ row }) => {
-                    return <PriceFormatted valeur={row.original.capital} currency={row.original.devise} />;
+                    const myfxbookAccount = myfxbookData?.accounts.find(
+                        (acc) => acc.accountId === parseInt(row.original.numero, 10),
+                    );
+                    return (
+                        <>
+                            <PriceFormatted valeur={row.original.capital} currency={row.original.devise} />
+                            {myfxbookSuccess && myfxbookAccount && (
+                                <div className={"flex gap-1 text-xs"}>
+                                    <PriceFormatted valeur={myfxbookAccount.balance} currency={row.original.devise} /> (
+                                    <PriceFormatted
+                                        valeur={myfxbookAccount.equity - myfxbookAccount.balance}
+                                        withColors={true}
+                                        currency={row.original.devise}
+                                    />
+                                    )
+                                </div>
+                            )}
+                        </>
+                    );
                 },
             }),
             columnHelper.accessor("tags", {
@@ -214,6 +248,11 @@ export const CompteContentDemo = () => {
 
     const handleSelectCompte = (id: number) => {
         navigate(`/comptes/${id}`);
+    };
+
+    const handleEditCompte = (id: number) => {
+        setCurrentCompte(data?.find((compte) => compte.id === id));
+        $compteEditPopup.set(true);
     };
 
     const handleDeleteCompte = async (id: number) => {

@@ -30,7 +30,8 @@ log = { workspace = true }
 thiserror = { workspace = true }
 calamine = { workspace = true }
 chrono = { workspace = true }
-
+zip = { workspace = true }
+walkdir = { workspace = true }
 
 
 [features]

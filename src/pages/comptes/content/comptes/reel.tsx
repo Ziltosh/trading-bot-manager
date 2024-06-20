@@ -21,42 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { CompteReelDataTable } from "@/components/ui/custom/comptes/reel-datatable.tsx";
 import useAppContext from "@/hooks/useAppContext.ts";
-
-interface MyfxbookAccount {
-    id: number;
-    name: string;
-    description: string;
-    accountId: number;
-    gain: number;
-    absGain: number;
-    daily: string;
-    monthly: string;
-    withdrawals: number;
-    deposits: number;
-    interest: number;
-    profit: number;
-    balance: number;
-    drawdown: number;
-    equity: number;
-    equityPercent: number;
-    demo: boolean;
-    lastUpdateDate: string;
-    creationDate: string;
-    firstTradeDate: string;
-    tracking: number;
-    views: number;
-    commission: number;
-    currency: string;
-    profitFactor: number;
-    pips: number;
-    invitationUrl: string;
-}
-
-interface MyfxbookMyAccountsResponse {
-    error: boolean;
-    message: string;
-    accounts: MyfxbookAccount[];
-}
+import { MyfxbookMyAccountsResponse } from "@/types/myfxbook.ts";
 
 export const CompteContentReel = () => {
     /** TOUR **/

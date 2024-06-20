@@ -1,10 +1,10 @@
+import { H3 } from "@/components/ui/typos.tsx";
+import useAppContext from "@/hooks/useAppContext.ts";
+import { $compteAddPopup, $optimisationAddPopup, $robotAddPopup } from "@/signals/components/ui/popups.ts";
+import { TourSteps } from "@/WelcomeTourSteps.ts";
 import Joyride, { CallBackProps } from "react-joyride";
 import { useNavigate } from "react-router-dom";
 import { useMount } from "react-use";
-import useAppContext from "@/hooks/useAppContext.ts";
-import { H3 } from "@/components/ui/typos.tsx";
-import { $compteAddPopup, $optimisationAddPopup, $robotAddPopup } from "@/signals/components/ui/popups.ts";
-import { TourSteps } from "@/WelcomeTourSteps.ts";
 
 export const WelcomeTour = () => {
     const navigate = useNavigate();
@@ -32,7 +32,7 @@ export const WelcomeTour = () => {
                             <p>Vous êtes ici sur la page d'accueil de l'application.</p>
                             <p>Pour y revenir cliquez sur le logo en haut à gauche.</p>
                             <p>
-                                La première étape pour utiliser cette application est de créer un robot. Cliquez sur
+                                La première étape pour utiliser cette application est d'ajouter un robot. Cliquez sur
                                 Next pour aller sur la page correspondante.
                             </p>
                         </div>
@@ -158,16 +158,78 @@ export const WelcomeTour = () => {
                     data: {},
                 },
                 {
-                    target: ".tour-comptes-add-popup",
+                    target: ".tour-comptes-add-name",
                     content: (
                         <div className={"flex flex-col gap-2"}>
-                            <H3>Entrez les détails</H3>
-                            <p>Remplissez les différentes infos de votre compte.</p>
+                            <H3>Entrez un nom</H3>
+                            <p>Donnez un nom à votre compte.</p>
                         </div>
                     ),
                     ...defaultStepOptions,
                     data: {
-                        next: "/optimisations",
+                        // next: "/comptes",
+                    },
+                },
+                {
+                    target: ".tour-comptes-add-type",
+                    content: (
+                        <div className={"flex flex-col gap-2"}>
+                            <H3>Entrez un type de compte</H3>
+                            <p>
+                                Selon si c'est un compte réel, un compte démo ou prop firm, ils seront rangés dans la
+                                section correspondante.
+                            </p>
+                            <p>Le choix va aussi influencer la valeur du champ suivant.</p>
+                        </div>
+                    ),
+                    ...defaultStepOptions,
+                    data: {
+                        // next: "/comptes",
+                    },
+                },
+                {
+                    target: ".tour-comptes-add-courtier",
+                    content: (
+                        <div className={"flex flex-col gap-2"}>
+                            <H3>Entrez le courtier</H3>
+                            <p>
+                                Si c'est un compte réel ou démo, vous pourrez choisir dans un menu déroulant votre
+                                courtier.
+                            </p>
+                        </div>
+                    ),
+                    ...defaultStepOptions,
+                    data: {
+                        // next: "/comptes",
+                    },
+                },
+                {
+                    target: ".tour-comptes-add-infos",
+                    content: (
+                        <div className={"flex flex-col gap-2"}>
+                            <H3>Entrez les informations du compte</H3>
+                            <p>Rentrez les différentes infos fournies par votre courtier.</p>
+                        </div>
+                    ),
+                    ...defaultStepOptions,
+                    data: {
+                        // next: "/comptes",
+                    },
+                },
+                {
+                    target: ".tour-comptes-add-create",
+                    content: (
+                        <div className={"flex flex-col gap-2"}>
+                            <H3>Validez l'ajout</H3>
+                            <p>
+                                Cliquez pour ajouter le compte. Il se rajoutera automatiquement à la liste des comptes
+                                dans la section appropriée.
+                            </p>
+                        </div>
+                    ),
+                    ...defaultStepOptions,
+                    data: {
+                        next: "/comptes",
                     },
                 },
                 {
@@ -239,7 +301,6 @@ export const WelcomeTour = () => {
     });
 
     const handleCallback = (data: CallBackProps) => {
-        console.log(data);
         const {
             action,
             index,
@@ -270,58 +331,23 @@ export const WelcomeTour = () => {
         // }
 
         if (type === "step:after") {
-            if (index === TourSteps.TOUR_ROBOT) {
-                setState({ stepIndex: TourSteps.TOUR_ROBOT_ADD });
-            }
-
             if (index === TourSteps.TOUR_ROBOT_ADD) {
                 setState({ stepIndex: TourSteps.TOUR_ROBOT_ADD_NAME });
                 $robotAddPopup.set(true);
-            }
-
-            if (index === TourSteps.TOUR_ROBOT_ADD_NAME) {
-                setState({ stepIndex: TourSteps.TOUR_ROBOT_ADD_DESC });
-            }
-
-            if (index === TourSteps.TOUR_ROBOT_ADD_DESC) {
-                setState({ stepIndex: TourSteps.TOUR_ROBOT_ADD_TAGS });
-            }
-
-            if (index === TourSteps.TOUR_ROBOT_ADD_TAGS) {
-                setState({ stepIndex: TourSteps.TOUR_ROBOT_ADD_SET });
-            }
-
-            if (index === TourSteps.TOUR_ROBOT_ADD_SET) {
-                setState({ stepIndex: TourSteps.TOUR_ROBOT_ADD_CREATE });
-            }
-
-            if (index === TourSteps.TOUR_ROBOT_ADD_CREATE) {
+            } else if (index === TourSteps.TOUR_ROBOT_ADD_CREATE) {
                 setState({ stepIndex: TourSteps.TOUR_COMPTE });
                 $robotAddPopup.set(false);
-            }
-
-            if (index === TourSteps.TOUR_COMPTE) {
-                setState({ stepIndex: TourSteps.TOUR_COMPTE_ADD });
-            }
-
-            if (index === TourSteps.TOUR_COMPTE_ADD) {
+            } else if (index === TourSteps.TOUR_COMPTE_ADD) {
+                setState({ stepIndex: TourSteps.TOUR_COMPTE_ADD_NAME });
                 $compteAddPopup.set(true);
-            }
-
-            if (index === TourSteps.TOUR_COMPTE_ADD_POPUP) {
+            } else if (index === TourSteps.TOUR_COMPTE_ADD_CREATE) {
                 $compteAddPopup.set(false);
-            }
-
-            if (index === TourSteps.TOUR_OPTIMISATION) {
-                setState({ stepIndex: TourSteps.TOUR_OPTIMISATION_ADD });
-            }
-
-            if (index === TourSteps.TOUR_OPTIMISATION_ADD) {
+            } else if (index === TourSteps.TOUR_OPTIMISATION_ADD) {
                 $optimisationAddPopup.set(true);
-            }
-
-            if (index === TourSteps.TOUR_OPTIMISATION_ADD_POPUP) {
+            } else if (index === TourSteps.TOUR_OPTIMISATION_ADD_POPUP) {
                 $optimisationAddPopup.set(false);
+            } else {
+                setState({ stepIndex: index + 1 });
             }
 
             if (next) {
@@ -340,9 +366,15 @@ export const WelcomeTour = () => {
                 callback={handleCallback}
                 continuous
                 run={run}
+                scrollToFirstStep
                 stepIndex={stepIndex}
                 steps={steps}
                 showSkipButton={true}
+                locale={{
+                    next: "Suivant",
+                    skip: "Skip",
+                    close: "Fermer",
+                }}
             />
         </>
     );

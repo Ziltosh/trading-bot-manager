@@ -1,9 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
-    "src-tauri",
-    "prisma/prisma_cli",
-]
+members = ["src-tauri", "prisma/prisma_cli"]
 
 [workspace.package]
 version = "0.1.0"
@@ -20,7 +17,7 @@ prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust
     "sqlite",
     "rspc",
     "sqlite-create-many",
-    "migrations"
+    "migrations",
 ] }
 #prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-rust", rev = "e701c00", default-features = false, features = [
 #    "sqlite",
@@ -32,14 +29,25 @@ prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-
     "sqlite",
     "rspc",
     "sqlite-create-many",
-    "migrations"
+    "migrations",
 ] }
 
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_json = { version = "1.0" }
 serde_with = { version = "3.0" }
 
-tauri = { version = "1.6.1", features = ["dialog-save", "dialog-open", "http-request", "window-set-resizable", "window-set-size", "path-all", "fs-write-file", "dialog-message"] }
+tauri = { version = "1.6.1", features = [
+    "dialog-save",
+    "dialog-open",
+    "http-request",
+    "window-set-resizable",
+    "window-set-size",
+    "path-all",
+    "fs-write-file",
+    "dialog-message",
+    "fs-read-file",
+    "updater",
+] }
 tauri-build = { version = "1.5.1", features = [] }
 tokio = { version = "1.36", features = ["macros", "rt", "rt-multi-thread"] }
 #specta-macros = "=2.0.0-rc.1"
@@ -53,8 +61,10 @@ open = "5.1.2"
 pretty_env_logger = "0.5.0"
 log = "0.4.21"
 thiserror = "1.0.58"
-calamine = { version = "0.24.0", features = ["chrono", "dates"] }
+calamine = { version = "0.25.0", features = ["chrono", "dates"] }
 chrono = { version = "0.4.35", features = ["serde"] }
+zip = "2.1"
+walkdir = "2.3"
 
 [profile.release]
 codegen-units = 1

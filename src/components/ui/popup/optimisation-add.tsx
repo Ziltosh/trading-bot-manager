@@ -1,26 +1,27 @@
-import { useEffect, useState } from "react";
-import * as z from "zod";
-import { util } from "zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { H2 } from "@/components/ui/typos.tsx";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
-import { Textarea } from "@/components/ui/textarea.tsx";
-import { open } from "@tauri-apps/api/dialog";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
-import { rspcClient } from "@/helpers/rspc.ts";
 import { Separator } from "@/components/ui/separator.tsx";
-import { OptimisationCreateArgs } from "@/rspc_bindings.ts";
-import { appDataDir } from "@tauri-apps/api/path";
+import { Textarea } from "@/components/ui/textarea.tsx";
+import { H2 } from "@/components/ui/typos.tsx";
+import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
-import { useMount } from "react-use";
+import { OptimisationCreateArgs } from "@/rspc_bindings.ts";
 import { TourSteps } from "@/WelcomeTourSteps.ts";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { open } from "@tauri-apps/api/dialog";
+import { appDataDir } from "@tauri-apps/api/path";
+import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useMount } from "react-use";
+import * as z from "zod";
+import { util } from "zod";
+
 import isInteger = util.isInteger;
 
 interface PopupPortfolioAddProps {
@@ -61,6 +62,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
         { value: "Prop firm" },
         { value: "Non Trading DD" },
         { value: "Tick par tick" },
+        { value: "Filtre news" },
     ]);
     const [timeframes] = useState(["M1", "M5", "M15", "M30", "H1", "H4", "D"]);
     // const [optimisationName, setOptimisationName] = useState(

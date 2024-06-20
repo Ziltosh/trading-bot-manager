@@ -4,7 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { H2 } from "@/components/ui/typos.tsx";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, InfoIcon } from "lucide-react";
 import {
     Form,
     FormControl,
@@ -26,6 +26,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useMount } from "react-use";
 import useAppContext from "@/hooks/useAppContext.ts";
 import { TourSteps } from "@/WelcomeTourSteps.ts";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import CheminRobotImg from "../../../assets/img/chemin_robot.jpg";
 
 interface PopupPortfolioAddProps {
     onClosePopup: () => void;
@@ -75,6 +77,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
 
     const formSchema = z.object({
         name: z.string().min(4).max(20).regex(fileNameRegex, "Cacactères non autorisés"),
+        chemin: z.string(),
         description: z.string(),
         tags: z
             .array(
@@ -173,6 +176,37 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
 
                         <FormField
                             control={form.control}
+                            name={"chemin"}
+                            render={({ field }) => (
+                                <FormItem className={"tour-robots-add-path"}>
+                                    <FormLabel>
+                                        Chemin du robot dans MT4{" "}
+                                        <TooltipProvider>
+                                            <Tooltip delayDuration={50}>
+                                                <TooltipTrigger asChild>
+                                                    <InfoIcon className="inline-flex h-4 w-4 cursor-pointer" />
+                                                </TooltipTrigger>
+                                                <TooltipContent className="space-y-2 bg-white p-4">
+                                                    <img src={CheminRobotImg} />
+                                                    <p>
+                                                        Dans ce cas mettre <i>/REB/REB-EMA-BB v3.1</i> par exemple
+                                                        <br />
+                                                        ou <i>/REB/REB Strategy Creator v3.2</i>.
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
                             name={"description"}
                             render={({ field }) => (
                                 <FormItem className={"tour-robots-add-desc"}>
@@ -185,7 +219,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             )}
                         />
 
-                        <div className="tour-robots-add-tags">
+                        <div className="tour-robots-add-tags space-y-2">
                             <FormLabel>Tags</FormLabel>
                             <div className={"flex flex-row flex-wrap gap-2"}>
                                 {fields.map((field, index) => (
@@ -259,7 +293,8 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             render={({ field }) => (
                                 <FormItem className={"tour-robots-add-set flex flex-col"}>
                                     <FormLabel>Fichier .set</FormLabel>
-                                    <Input {...field} readOnly={true} />
+                                    <Input {...field} readOnly={true} type="hidden" />
+                                    <Input readOnly={true} value={settingsFilePath} />
                                     <FormDescription>
                                         Pensez à bien utiliser la "Remise à zéro" des paramètres via MetaTrader avant
                                         d'envoyer le fichier. Ca permettra de pouvoir comparer les settings par défaut

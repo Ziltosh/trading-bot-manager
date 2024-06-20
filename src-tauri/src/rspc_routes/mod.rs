@@ -4,12 +4,13 @@ use rspc::{Config, ErrorCode, Router};
 
 use crate::service::generate_prisma::PrismaClient;
 
+mod compte;
 mod dbroutes;
-mod robot;
-mod tag;
 mod optimisation;
 mod optimisation_periode;
-mod compte;
+mod robot;
+mod tag;
+mod zip;
 
 pub fn init_router() -> Arc<Router<Shared>> {
     let router = Router::<Shared>::new()
@@ -26,6 +27,7 @@ pub fn init_router() -> Arc<Router<Shared>> {
         .merge("tags.", tag::mount()) // Mount the tags routes
         .merge("optimisations.", optimisation::mount()) // Mount the optimisations routes
         .merge("optimisation_periodes.", optimisation_periode::mount()) // Mount the optimisation_periodes routes
+        .merge("zip.", zip::mount()) // Mount the comptes routes
         .query("version", |t| {
             t(|_, _: ()| async move { env!("CARGO_PKG_VERSION") })
         })

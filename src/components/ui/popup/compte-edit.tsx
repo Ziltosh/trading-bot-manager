@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
     Command,
@@ -18,21 +17,22 @@ import { courtiers } from "@/helpers/courtiers.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
 import { cn } from "@/lib/utils.ts";
-import { CompteCreateArgs } from "@/rspc_bindings.ts";
+import { CompteUpdateArgs } from "@/rspc_bindings.ts";
+import { useGlobalStore } from "@/stores/global-store";
 import { TourSteps } from "@/WelcomeTourSteps.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckIcon } from "lucide-react";
-import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useMount } from "react-use";
 import * as z from "zod";
 
-interface PopupCompteAddProps {
+interface PopupCompteEditProps {
     onClosePopup: () => void;
 }
 
-export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
+export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
     /** TOUR **/
     const {
         setState,
@@ -48,19 +48,17 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
     });
     /** END TOUR **/
 
+    let forceRefresh = new Date().getTime();
+
+    const { currentCompte: compte } = useGlobalStore();
+
+    console.log(compte);
+
     const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [errorMessage] = useState("");
-    const [defaultTags] = useState([
-        { value: "Long terme" },
-        { value: "Court terme" },
-        { value: "Set Rattrapage" },
-        { value: "Set Maintien" },
-        { value: "Set Idéal" },
-        { value: "HFT" },
-        { value: "CENTS" },
-    ]);
+
     const [openCombobox, setOpenCombobox] = useState(false);
 
     const queryClient = useQueryClient();
@@ -76,62 +74,58 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
         password: z.string(),
         serveur: z.string(),
         status: z.string().refine((value) => ["actif", "phase 1", "phase 2", "financé", "cloturé"].includes(value)),
-        tags: z
-            .array(
-                z.object({
-                    value: z.string(),
-                }),
-            )
-            .min(0),
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         mode: "onChange",
         defaultValues: {
-            name:
-                "Compte #" +
-                Math.floor(Math.random() * 1000)
-                    .toString()
-                    .padStart(4, "0"),
-            tags: [],
-            password: "",
+            name: compte?.name,
+            capital: compte?.capital.toString(),
+            password: compte?.password || "",
+            devise: compte?.devise,
+            courtier: compte?.courtier,
+            plateforme: compte?.plateforme,
+            numero: compte?.numero,
+            serveur: compte?.serveur,
+            type_compte: compte?.type_compte,
+            status: compte?.status,
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
-        name: "tags",
-        control: form.control,
-    });
+    useEffect(() => {
+        if (!compte) return;
+        form.setValue("name", compte.name);
+        form.setValue("type_compte", compte.type_compte);
+        form.setValue("status", compte.status);
+        form.setValue("devise", compte.devise);
+        form.setValue("plateforme", compte.plateforme);
+        form.setValue("numero", compte.numero);
+        form.setValue("serveur", compte.serveur);
+        form.setValue("courtier", compte.courtier);
+        form.setValue("capital", compte.capital.toString());
+        form.setValue("password", compte.password || "");
+        forceRefresh = new Date().getTime();
+    }, [compte, form]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsCreating(true);
 
         try {
-            const args: CompteCreateArgs = {
+            const args: CompteUpdateArgs = {
                 ...values,
                 capital: parseFloat(values.capital),
-                password: values.password === null ? "" : values.password,
+                id: compte!.id,
             };
 
-            const compte = await rspcClient.mutation(["comptes.create", args]);
-
-            for (let i = 0; i < values.tags.length; i++) {
-                await rspcClient.mutation([
-                    "tags.create_for_compte",
-                    {
-                        tag: values.tags[i].value,
-                        compte_id: compte.id,
-                    },
-                ]);
-            }
+            await rspcClient.mutation(["comptes.update", args]);
 
             queryClient.invalidateQueries({
                 queryKey: ["comptes"],
             });
         } catch (e) {
             console.error(e);
-            alert("Erreur lors de la création du compte");
+            alert("Erreur lors de l'édition du compte");
         }
 
         setIsCreating(false);
@@ -173,12 +167,13 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
 
                         <FormField
                             control={form.control}
-                            name={"type_compte"}
+                            name="type_compte"
+                            key={`type_compte_${forceRefresh}`}
                             render={({ field }) => (
                                 <FormItem className="tour-comptes-add-type">
                                     <FormLabel>Type de compte</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange}>
+                                        <Select onValueChange={field.onChange} defaultValue={compte?.type_compte}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Type du compte" />
@@ -286,7 +281,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                                 <FormItem>
                                     <FormLabel>Status</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange}>
+                                        <Select onValueChange={field.onChange} defaultValue={compte?.status}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Status" />
@@ -333,7 +328,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                                 <FormItem>
                                     <FormLabel>Devise</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange}>
+                                        <Select onValueChange={field.onChange} defaultValue={compte?.devise}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Devise du compte" />
@@ -359,7 +354,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                                     <FormItem>
                                         <FormLabel>Plateforme</FormLabel>
                                         <FormControl>
-                                            <Select onValueChange={field.onChange}>
+                                            <Select onValueChange={field.onChange} defaultValue={compte?.plateforme}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Plateforme" />
@@ -419,72 +414,6 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                             />
                         </div>
 
-                        <FormLabel>Tags</FormLabel>
-                        <div className={"flex flex-row flex-wrap gap-2"}>
-                            {fields.map((field, index) => (
-                                <div key={`div_${field.id}`}>
-                                    <Badge
-                                        key={`badge_${field.id}`}
-                                        variant={"secondary"}
-                                        className={"cursor-pointer bg-accent"}
-                                        onClick={() => remove(index)}
-                                    >
-                                        {field.value}
-                                    </Badge>
-                                    <FormField
-                                        control={form.control}
-                                        key={field.id}
-                                        name={`tags.${index}.value`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <Input className={"hidden"} {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        <FormLabel>Ajouter un tag</FormLabel>
-                        <div className="flex flex-wrap gap-2">
-                            {defaultTags.map((tag, index) => (
-                                <Badge
-                                    key={`badge_${index}`}
-                                    variant={
-                                        fields.filter((el) => el.value === tag.value).length > 0
-                                            ? "outline"
-                                            : "secondary"
-                                    }
-                                    className={
-                                        fields.filter((el) => el.value === tag.value).length === 0
-                                            ? "cursor-pointer hover:bg-accent"
-                                            : ""
-                                    }
-                                    onClick={() => {
-                                        if (fields.filter((el) => el.value === tag.value).length === 0) {
-                                            append({ value: tag.value });
-                                        }
-                                    }}
-                                >
-                                    {tag.value}
-                                </Badge>
-                            ))}
-                        </div>
-                        <Input
-                            type={"text"}
-                            placeholder={"Tag personnalisé, entrée pour valider"}
-                            onKeyDown={(e) => {
-                                // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    append({ value: e.currentTarget.value });
-                                    e.currentTarget.value = "";
-                                }
-                            }}
-                        />
-
                         <div className="flex gap-2 self-center">
                             <Button type={"button"} variant={"secondary"} onClick={onClosePopup}>
                                 Annuler
@@ -494,7 +423,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                                 disabled={isCreating}
                                 className={"tour-comptes-add-create self-center"}
                             >
-                                {isCreating ? "Création en cours..." : "Créer"}
+                                {isCreating ? "Modification en cours..." : "Modifier"}
                             </Button>
                         </div>
                     </form>

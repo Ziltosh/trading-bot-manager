@@ -54,6 +54,7 @@ export const RobotDetails = () => {
                     </div>
                 </div>
 
+                <p>Situé sur MT4 dans: {data?.chemin}</p>
                 <p>{data?.description}</p>
                 <H3>Paramètres</H3>
                 <div className="rounded-lg bg-gray-100 p-2 text-black">

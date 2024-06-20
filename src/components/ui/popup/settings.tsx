@@ -6,15 +6,10 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form.tsx";
+import { MyfxbookLoginResponse } from "@/types/myfxbook.ts";
 
 interface PopupSettingsProps {
     onClosePopup: () => void;
-}
-
-interface MyfxbookLoginResponse {
-    error: boolean;
-    message: string;
-    session: string;
 }
 
 export const PopupSettings = ({ onClosePopup }: PopupSettingsProps) => {

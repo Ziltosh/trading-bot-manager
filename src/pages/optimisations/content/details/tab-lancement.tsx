@@ -1,14 +1,14 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
-import { PercentFormatted } from "@/components/ui/custom/percent-formatted.tsx";
-import { convertToDate } from "@/helpers/periode.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { useQuery } from "@tanstack/react-query";
+import { PercentFormatted } from "@/components/ui/custom/percent-formatted.tsx";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
+import { convertToDate } from "@/helpers/periode.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
 import { generateSetFromParams, mergeSetParams } from "@/helpers/setFiles.ts";
+import { useQuery } from "@tanstack/react-query";
 import { save } from "@tauri-apps/api/dialog";
-import { documentDir } from "@tauri-apps/api/path";
 import { writeTextFile } from "@tauri-apps/api/fs";
+import { documentDir } from "@tauri-apps/api/path";
 
 interface OptimisationTabLancementProps {
     dataOpById: { id: number; xlsm_path: string; name: string; paire: string; set_path: string };
@@ -70,7 +70,7 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
         ]);
 
         const passageSetParams = generateSetFromParams(passageParamsStr);
-        const file = mergeSetParams(optiSetParams, passageSetParams);
+        const file = mergeSetParams(optiSetParams, passageSetParams, dataOpById.name);
         const savePath = await save({
             defaultPath:
                 (await documentDir()) +
@@ -186,6 +186,10 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
                         </TableRow>
                     </TableBody>
                 </Table>
+
+                <p className="col-span-2 mt-2 text-center">
+                    L'enregistrement du .set va créer un Magic Number unique automatiquement.
+                </p>
 
                 <Button
                     className={"col-span-2 grow-0 grid-rows-2 justify-self-center"}

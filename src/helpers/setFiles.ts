@@ -77,6 +77,24 @@ export function convertJsonToSet(json: SetEntry[]): string {
     return setContent.trim();
 }
 
+export function convertJsonToChr(json: SetEntry[]): string {
+    let chrContent = "";
+
+    console.log(json);
+
+    json.forEach((entry) => {
+        chrContent += `${entry.name}=${entry.value}\n`;
+        if (typeof entry.value === "number") {
+            // Only add 'F', '1', '2', and '3' lines if they are defined
+            if (entry.active !== undefined) {
+                chrContent += `${entry.name}=${entry.active}\n`;
+            }
+        }
+    });
+
+    return chrContent.trim();
+}
+
 export function generateSetFromParams(params: XlsmPassageData): string {
     // On a une liste de paramètres de la forme "param1=val1", "param2=val2", etc.
     // On extrait la valeur
@@ -91,12 +109,40 @@ export function generateSetFromParams(params: XlsmPassageData): string {
     return convertJsonToSet(json);
 }
 
-export function mergeSetParams(defaultSettingsText: string, modifiedSettingsText: string) {
-    const defaultSettings = parseSettings(defaultSettingsText);
-    const modifiedSettings = parseSettings(modifiedSettingsText);
+export function generateChrFromParams(params: XlsmPassageData): string {
+    // On a une liste de paramètres de la forme "param1=val1", "param2=val2", etc.
+    // On extrait la valeur
+    const json: SetEntry[] = params.parametres.slice(0, -1).map((param) => {
+        const [name, value] = param.split("=");
+        return {
+            name: name,
+            value: isNaN(Number(value)) ? value : Number(value),
+        };
+    });
+
+    return convertJsonToChr(json);
+}
+
+export function mergeSetParams(
+    defaultSettingsText: string,
+    modifiedSettingsText: string,
+    robotName: string = "",
+    isChr = false,
+    overrides: ParamSettings = {},
+) {
+    const defaultSettings = parseSettings(defaultSettingsText, isChr);
+    const modifiedSettings = parseSettings(modifiedSettingsText, isChr);
+
+    const magicNumber = Math.ceil(Math.random() * 100_000_000);
+    modifiedSettings["EA_Magic_Number"] = magicNumber;
+    modifiedSettings["EA_Comment"] = robotName + " " + magicNumber.toString();
+    for (const key in overrides) {
+        modifiedSettings[key] = overrides[key];
+    }
 
     // Construire le résultat final en vérifiant les modifications
     let mergedSettings = defaultSettingsText;
+
     for (const key in modifiedSettings) {
         if (
             Object.prototype.hasOwnProperty.call(modifiedSettings, key) &&
@@ -117,7 +163,7 @@ interface ParamSettings {
 }
 
 // Fonction pour parser les paramètres depuis un texte
-function parseSettings(text: string): ParamSettings {
+export function parseSettings(text: string, isChr = false): ParamSettings {
     const settings: ParamSettings = {};
     const lines = text.split("\n");
     for (const line of lines) {
@@ -125,6 +171,9 @@ function parseSettings(text: string): ParamSettings {
         if (line.includes("=")) {
             const [key, value] = line.split("=");
             if (key && value !== undefined) {
+                if (isChr && (key.includes(",1") || key.includes(",2") || key.includes(",3") || key.includes(",F"))) {
+                    continue;
+                }
                 settings[key.trim()] = value.trim();
             }
         }

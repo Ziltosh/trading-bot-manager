@@ -1,32 +1,39 @@
-import "./assets/css/app.css";
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.tsx";
-import { Header } from "@/components/ui/header/header.tsx";
-import { Outlet } from "react-router-dom";
 import { Footer } from "@/components/ui/footer/footer.tsx";
+import { Header } from "@/components/ui/header/header.tsx";
+import { PopupCompteAdd } from "@/components/ui/popup/compte-add.tsx";
+import { PopupOptimisationAdd } from "@/components/ui/popup/optimisation-add.tsx";
+import { PopupOptimisationEdit } from "@/components/ui/popup/optimisation-edit.tsx";
+import { PopupPortfolioAdd } from "@/components/ui/popup/portfolio-add.tsx";
+import { PopupProfilCreation } from "@/components/ui/popup/profil-creation";
+import { PopupRobotAdd } from "@/components/ui/popup/robot-add.tsx";
+import { PopupSettings } from "@/components/ui/popup/settings.tsx";
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.tsx";
 import { useSignal } from "@/hooks/useSignal.ts";
 import {
     $compteAddPopup,
+    $compteEditPopup,
     $optimisationAddPopup,
     $optimisationEditPopup,
     $portfolioAddPopup,
+    $profilCreationPopup,
     $robotAddPopup,
     $settingsPopup,
 } from "@/signals/components/ui/popups.ts";
-import { PopupPortfolioAdd } from "@/components/ui/popup/portfolio-add.tsx";
-import { PopupRobotAdd } from "@/components/ui/popup/robot-add.tsx";
-import { PopupOptimisationAdd } from "@/components/ui/popup/optimisation-add.tsx";
-import { PopupCompteAdd } from "@/components/ui/popup/compte-add.tsx";
-import { PopupOptimisationEdit } from "@/components/ui/popup/optimisation-edit.tsx";
 import { WelcomeTour } from "@/WelcomeTour.tsx";
 import { WelcomeTourProvider } from "@/WelcomeTourContext.tsx";
-import { PopupSettings } from "@/components/ui/popup/settings.tsx";
+import { Outlet } from "react-router-dom";
+
+import "./assets/css/app.css";
+import { PopupCompteEdit } from "@/components/ui/popup/compte-edit";
 
 function App() {
     const portfolioAddPopup = useSignal($portfolioAddPopup);
     const robotAddPopup = useSignal($robotAddPopup);
     const compteAddPopup = useSignal($compteAddPopup);
+    const compteEditPopup = useSignal($compteEditPopup);
     const optimisationAddPopup = useSignal($optimisationAddPopup);
     const optimisationEditPopup = useSignal($optimisationEditPopup);
+    const profilCreationPopup = useSignal($profilCreationPopup);
     const settingsPopup = useSignal($settingsPopup);
 
     return (
@@ -58,10 +65,26 @@ function App() {
                     />
                 )}
 
+                {compteEditPopup && (
+                    <PopupCompteEdit
+                        onClosePopup={() => {
+                            $compteEditPopup.set(false);
+                        }}
+                    />
+                )}
+
                 {settingsPopup && (
                     <PopupSettings
                         onClosePopup={() => {
                             $settingsPopup.set(false);
+                        }}
+                    />
+                )}
+
+                {profilCreationPopup && (
+                    <PopupProfilCreation
+                        onClosePopup={() => {
+                            $profilCreationPopup.set(false);
                         }}
                     />
                 )}

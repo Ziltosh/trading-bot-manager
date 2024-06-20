@@ -19,14 +19,18 @@ export type Procedures = {
         { key: "optimisations.get_xlsm_lancement_data", input: GetLancementDataArgs, result: XlsmLancementData } | 
         { key: "optimisations.get_xlsm_optimisation_data", input: GetOptimisationDataArgs, result: XlsmOptimisationData } | 
         { key: "optimisations.get_xlsm_passage_data", input: GetPassageDataArgs, result: XlsmPassageData } | 
-        { key: "robots.all", input: never, result: { id: number; name: string; description: string; json_settings: string; tags: { robotId: number; tagId: number; tag: { name: string } }[] }[] } | 
-        { key: "robots.get_by_id", input: RobotGetByIdArgs, result: { id: number; name: string; description: string; json_settings: string; tags: { robotId: number; tagId: number; tag: { name: string } }[] } | null } | 
+        { key: "robots.all", input: never, result: { id: number; name: string; chemin: string; description: string; json_settings: string; tags: { robotId: number; tagId: number; tag: { name: string } }[] }[] } | 
+        { key: "robots.get_by_id", input: RobotGetByIdArgs, result: { id: number; name: string; chemin: string; description: string; json_settings: string; tags: { robotId: number; tagId: number; tag: { name: string } }[] } | null } | 
         { key: "robots.open_set_file", input: OpenSetFileArgs, result: string } | 
         { key: "tags.get_by_robot", input: never, result: Robot | null } | 
-        { key: "version", input: never, result: string },
+        { key: "version", input: never, result: string } | 
+        { key: "zip.create_directory", input: ZipCreateDirectory, result: boolean } | 
+        { key: "zip.create_file", input: ZipCreateFile, result: boolean } | 
+        { key: "zip.zip_directory", input: ZipZipDirectory, result: string },
     mutations: 
         { key: "comptes.create", input: CompteCreateArgs, result: Compte } | 
         { key: "comptes.delete", input: CompteDeleteArgs, result: Compte } | 
+        { key: "comptes.update", input: CompteUpdateArgs, result: Compte } | 
         { key: "optimisation_periodes.create", input: OptimisationPeriodeUpsertArgs, result: OptimisationPeriode } | 
         { key: "optimisation_periodes.delete_for_optimisation_id", input: OptimisationPeriodeDeleteOptimisationIdArgs, result: null } | 
         { key: "optimisations.create", input: OptimisationCreateArgs, result: Optimisation } | 
@@ -40,25 +44,25 @@ export type Procedures = {
     subscriptions: never
 };
 
-export type XlsmLancementData = { nb_periodes: number; pct_periodes_rentables: string; resultat_total: number; periode_resultat_moyen: number; periode_meilleur_resultat: number; periode_pire_resultat: number; dd_max: number; check_periode_validation_debut: string; check_periode_validation_fin: string; check_passage: number; check_resultat: number; check_resultat_mensuel: string; check_dd: number; check_trades: number }
-
-export type XlsmOptimisationData = { periodes: string[]; resultats: string[]; drawdowns: string[] }
-
-export type CompteCreateArgs = { name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string; serveur: string; status: string }
-
-export type OptimisationDeleteArgs = { id: number }
-
-export type OptimisationPeriodeUpsertArgs = { optimisation_id: number; periode: string; profit: number; drawdown: number }
-
-export type GetOptimisationDataArgs = { path: string; nb_periodes: number }
-
-export type GetLancementDataArgs = { path: string }
+export type GetSetDataArgs = { path: string }
 
 export type OptimisationGetByCompteIdArgs = { compte_id: number }
 
-export type CompteGetByIdArgs = { id: number }
+export type XlsmBasicData = { capital: number; date_debut: string; decalage_court: number; decalage_court_unite: string; decalage_long: number; decalage_long_unite: string }
+
+export type CompteDeleteArgs = { id: number }
+
+export type Tag = { id: number; cible: string; name: string }
+
+export type CheckXlsmExistsArgs = { path: string }
 
 export type Optimisation = { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null }
+
+export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number | null; timeframe: string; paire: string }
+
+export type OptimisationPeriodeUpsertArgs = { optimisation_id: number; periode: string; profit: number; drawdown: number }
+
+export type GetBasicDataArgs = { path: string }
 
 export type RobotGetByIdArgs = { id: number }
 
@@ -66,42 +70,50 @@ export type OptimisationPeriodeGetByOptimisationIdArgs = { optimisation_id: numb
 
 export type GetPassageDataArgs = { path: string; passage: number }
 
-export type GetSetDataArgs = { path: string }
+export type XlsmPassageData = { parametres: string[] }
 
-export type OptimisationPeriode = { id: number; optimisationId: number; periode: string; profit: number; drawdown: number }
+export type ZipZipDirectory = { path: string; folder: string; zip_name: string }
+
+export type GetOptimisationDataArgs = { path: string; nb_periodes: number }
+
+export type CompteUpdateArgs = { id: number; name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string; serveur: string; status: string }
 
 export type TagRobotCreateArgs = { tag: string; robot_id: number }
 
-export type CheckXlsmExistsArgs = { path: string }
-
-export type XlsmPassageData = { parametres: string[] }
-
-export type RobotDeleteArgs = { id: number }
-
-export type Compte = { id: number; name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string | null; serveur: string; status: string }
-
-export type OpenSetFileArgs = { path: string }
-
-export type TagOptimisationCreateArgs = { tag: string; optimisation_id: number }
-
-export type CompteDeleteArgs = { id: number }
-
-export type RobotCreateArgs = { name: string; description: string; json_settings: string }
-
 export type OptimisationCreateArgs = { name: string; description: string; robot_id: number; compte_id: number | null; robot_name: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; app_data_dir: string }
 
-export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number | null; timeframe: string; paire: string }
-
-export type Tag = { id: number; cible: string; name: string }
-
-export type Robot = { id: number; name: string; description: string; json_settings: string }
-
-export type XlsmBasicData = { capital: number; date_debut: string; decalage_court: number; decalage_court_unite: string; decalage_long: number; decalage_long_unite: string }
+export type CompteGetByIdArgs = { id: number }
 
 export type OptimisationGetByIdArgs = { id: number }
 
+export type OptimisationDeleteArgs = { id: number }
+
+export type OpenSetFileArgs = { path: string }
+
+export type OptimisationPeriode = { id: number; optimisationId: number; periode: string; profit: number; drawdown: number }
+
+export type CompteCreateArgs = { name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string; serveur: string; status: string }
+
+export type GetLancementDataArgs = { path: string }
+
+export type TagOptimisationCreateArgs = { tag: string; optimisation_id: number }
+
+export type ZipCreateDirectory = { name: string; folder: string }
+
+export type Robot = { id: number; name: string; chemin: string; description: string; json_settings: string }
+
+export type RobotDeleteArgs = { id: number }
+
+export type ZipCreateFile = { path: string; folder: string; name: string; content: string }
+
+export type XlsmLancementData = { nb_periodes: number; pct_periodes_rentables: string; resultat_total: number; periode_resultat_moyen: number; periode_meilleur_resultat: number; periode_pire_resultat: number; dd_max: number; check_periode_validation_debut: string; check_periode_validation_fin: string; check_passage: number; check_resultat: number; check_resultat_mensuel: string; check_dd: number; check_trades: number }
+
 export type OptimisationPeriodeDeleteOptimisationIdArgs = { optimisation_id: number }
+
+export type Compte = { id: number; name: string; type_compte: string; capital: number; devise: string; courtier: string; plateforme: string; numero: string; password: string | null; serveur: string; status: string }
+
+export type RobotCreateArgs = { name: string; chemin: string; description: string; json_settings: string }
 
 export type TagCompteCreateArgs = { tag: string; compte_id: number }
 
-export type GetBasicDataArgs = { path: string }
+export type XlsmOptimisationData = { periodes: string[]; resultats: string[]; drawdowns: string[] }

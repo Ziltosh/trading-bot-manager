@@ -1,13 +1,14 @@
-import { H2, H3 } from "@/components/ui/typos.tsx";
-import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { rspcClient } from "@/helpers/rspc.ts";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Optimisation, XlsmBasicData, XlsmLancementData, XlsmOptimisationData } from "@/rspc_bindings.ts";
-import { useState } from "react";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
 import { PercentFormatted } from "@/components/ui/custom/percent-formatted.tsx";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
+import { H2, H3 } from "@/components/ui/typos.tsx";
+import { rspcClient } from "@/helpers/rspc.ts";
+import { Optimisation, XlsmBasicData, XlsmLancementData, XlsmOptimisationData } from "@/rspc_bindings.ts";
+import { $profilCreationPopup } from "@/signals/components/ui/popups";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface AllOptiData {
     infos: Optimisation;
@@ -162,7 +163,7 @@ export const HomeContentDetails = () => {
                 </Table>
             )}
 
-            <Button disabled>Générer le profil Metatrader 4</Button>
+            <Button onClick={() => $profilCreationPopup.set(true)}>Générer le profil Metatrader 4</Button>
 
             <H3>Liste des robots sur le compte</H3>
 
