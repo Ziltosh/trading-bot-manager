@@ -37,6 +37,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "embla-carousel-react": "^8.1.5",
     "immer": "^10.1.1",
     "lucide-react": "^0.309.0",
     "postcss": "^8.4.38",

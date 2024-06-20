@@ -4,8 +4,8 @@ use rspc::{RouterBuilder, Type};
 
 use serde::{Deserialize, Serialize};
 
-use crate::service::generate_prisma::{robot};
 use crate::rspc_routes::Shared;
+use crate::service::generate_prisma::robot;
 
 pub fn mount() -> RouterBuilder<Shared> {
     RouterBuilder::<Shared>::new()
@@ -58,7 +58,8 @@ pub fn mount() -> RouterBuilder<Shared> {
             }
             t(|_ctx, args: OpenSetFileArgs| async move {
                 println!("Opening file: {:?}", &args.path);
-                let content = fs::read_to_string(&args.path).expect("Something went wrong reading the file");
+                let content =
+                    fs::read_to_string(&args.path).expect("Something went wrong reading the file");
                 Ok(content)
             })
         })
@@ -66,40 +67,45 @@ pub fn mount() -> RouterBuilder<Shared> {
             #[derive(Debug, Clone, Deserialize, Serialize, Type)]
             struct RobotCreateArgs {
                 name: String,
+                chemin: String,
                 description: String,
                 json_settings: String,
             }
             t(|ctx, args: RobotCreateArgs| async move {
                 let RobotCreateArgs {
                     name,
+                    chemin,
                     description,
                     json_settings,
                 } = args;
 
-                let robot = ctx.client
-                    .robot().create(
-                    name,
-                    vec![
-                        robot::description::set(description),
-                        robot::json_settings::set(json_settings),
-                    ],
-                ).exec().await?;
+                let robot = ctx
+                    .client
+                    .robot()
+                    .create(
+                        name,
+                        vec![
+                            robot::description::set(description),
+                            robot::chemin::set(chemin),
+                            robot::json_settings::set(json_settings),
+                        ],
+                    )
+                    .exec()
+                    .await?;
 
                 Ok(robot)
             })
         })
-
         .mutation("delete", |t| {
             #[derive(Debug, Clone, Deserialize, Serialize, Type)]
             struct RobotDeleteArgs {
                 id: i32,
             }
             t(|ctx, args: RobotDeleteArgs| async move {
-                let RobotDeleteArgs {
-                    id
-                } = args;
+                let RobotDeleteArgs { id } = args;
 
-                let compte = ctx.client
+                let compte = ctx
+                    .client
                     .robot()
                     .delete(robot::id::equals(id))
                     .exec()

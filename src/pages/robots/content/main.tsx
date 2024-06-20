@@ -1,13 +1,3 @@
-import { useGlobalStore } from "@/stores/global-store.ts";
-import { useMount } from "react-use";
-import useAppContext from "@/hooks/useAppContext.ts";
-import { H2 } from "@/components/ui/typos.tsx";
-import { createColumnHelper } from "@tanstack/react-table";
-import { inferProcedureResult } from "@rspc/client";
-import { Procedures } from "@/rspc_bindings.ts";
-import { useMemo } from "react";
-import { Button } from "@/components/ui/button.tsx";
-import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,12 +9,22 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { RobotsDataTable } from "@/components/ui/custom/robots/robots-datatable.tsx";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { H2 } from "@/components/ui/typos.tsx";
 import { rspcClient } from "@/helpers/rspc.ts";
+import useAppContext from "@/hooks/useAppContext.ts";
+import { Procedures } from "@/rspc_bindings.ts";
 import { $robotAddPopup, $robotEditPopup } from "@/signals/components/ui/popups.ts";
-import { useNavigate } from "react-router-dom";
+import { useGlobalStore } from "@/stores/global-store.ts";
 import { TourSteps } from "@/WelcomeTourSteps.ts";
+import { inferProcedureResult } from "@rspc/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMount } from "react-use";
 
 export const RobotContentMain = () => {
     /** TOUR **/
@@ -56,6 +56,7 @@ export const RobotContentMain = () => {
                     {
                         id: 1,
                         name: "Robot test",
+                        chemin: "/REB/REB Test v1",
                         description: "Description",
                         json_settings: "{}",
                         tags: [{ robotId: 1, tagId: 1, tag: { name: "Tag test" } }],
@@ -107,6 +108,7 @@ export const RobotContentMain = () => {
                             <Button
                                 className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
+                                disabled
                                 onClick={() => handleEditRobot(row.original.id)}
                             >
                                 <PencilIcon className="h-4 w-4" />

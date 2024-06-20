@@ -21,6 +21,7 @@ datasource db {
 model Robot {
     id            Int            @id @default(autoincrement())
     name          String
+    chemin        String         @default("")
     description   String         @default("")
     json_settings String         @default("{}")
     tags          RobotTag[]

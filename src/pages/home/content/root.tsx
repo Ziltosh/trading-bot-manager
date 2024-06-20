@@ -18,17 +18,17 @@ export const HomeContentRoot = () => {
     });
 
     return (
-        <>
+        <div className={"tour-accueil flex h-full w-full flex-col gap-2"}>
             {!run && (
                 <Button className={"my-3"} onClick={() => setState({ run: true, tourActive: true })}>
                     Voir la visite guidée
                 </Button>
             )}
 
-            <H2 className={"tour-accueil"}>Bienvenue</H2>
+            <H2>Bienvenue</H2>
             <H4>Étape 1: Ajoutez vos robots</H4>
             <H4>Étape 2: Ajoutez vos comptes</H4>
             <H4>Étape 3: Ajoutez vos optimisations</H4>
-        </>
+        </div>
     );
 };

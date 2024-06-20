@@ -2,8 +2,8 @@ use rspc::{RouterBuilder, Type};
 
 use serde::{Deserialize, Serialize};
 
-use crate::service::generate_prisma::compte;
 use crate::rspc_routes::Shared;
+use crate::service::generate_prisma::compte;
 
 pub fn mount() -> RouterBuilder<Shared> {
     RouterBuilder::<Shared>::new()
@@ -12,9 +12,7 @@ pub fn mount() -> RouterBuilder<Shared> {
                 let comptes_db = ctx
                     .client
                     .compte()
-                    .find_many(vec![
-                        compte::type_compte::equals("demo".to_string())
-                    ])
+                    .find_many(vec![compte::type_compte::equals("demo".to_string())])
                     .include(compte::include!({
                         tags: include
                         {
@@ -35,9 +33,7 @@ pub fn mount() -> RouterBuilder<Shared> {
                 let comptes_db = ctx
                     .client
                     .compte()
-                    .find_many(vec![
-                        compte::type_compte::equals("prop".to_string())
-                    ])
+                    .find_many(vec![compte::type_compte::equals("prop".to_string())])
                     .include(compte::include!({
                         tags: include
                         {
@@ -58,9 +54,7 @@ pub fn mount() -> RouterBuilder<Shared> {
                 let comptes_db = ctx
                     .client
                     .compte()
-                    .find_many(vec![
-                        compte::type_compte::equals("reel".to_string())
-                    ])
+                    .find_many(vec![compte::type_compte::equals("reel".to_string())])
                     .include(compte::include!({
                         tags: include
                         {
@@ -129,8 +123,45 @@ pub fn mount() -> RouterBuilder<Shared> {
                     status,
                 } = args;
 
-                let compte = ctx.client
-                    .compte().create(
+                let compte = ctx
+                    .client
+                    .compte()
+                    .create(
+                        name,
+                        type_compte,
+                        capital,
+                        devise,
+                        courtier,
+                        plateforme,
+                        numero,
+                        serveur,
+                        status,
+                        vec![compte::password::set(Some(password))],
+                    )
+                    .exec()
+                    .await?;
+
+                Ok(compte)
+            })
+        })
+        .mutation("update", |t| {
+            #[derive(Debug, Clone, Deserialize, Serialize, Type)]
+            struct CompteUpdateArgs {
+                id: i32,
+                name: String,
+                type_compte: String,
+                capital: f64,
+                devise: String,
+                courtier: String,
+                plateforme: String,
+                numero: String,
+                password: String,
+                serveur: String,
+                status: String,
+            }
+            t(|ctx, args: CompteUpdateArgs| async move {
+                let CompteUpdateArgs {
+                    id,
                     name,
                     type_compte,
                     capital,
@@ -138,12 +169,32 @@ pub fn mount() -> RouterBuilder<Shared> {
                     courtier,
                     plateforme,
                     numero,
+                    password,
                     serveur,
                     status,
-                    vec![
-                        compte::password::set(Some(password)),
-                    ],
-                ).exec().await?;
+                } = args;
+
+                let compte;
+
+                compte = ctx
+                    .client
+                    .compte()
+                    .update(
+                        compte::id::equals(id),
+                        vec![
+                            compte::name::set(name),
+                            compte::type_compte::set(type_compte),
+                            compte::capital::set(capital),
+                            compte::devise::set(devise),
+                            compte::courtier::set(courtier),
+                            compte::plateforme::set(plateforme),
+                            compte::numero::set(numero),
+                            compte::serveur::set(serveur),
+                            compte::status::set(status),
+                        ],
+                    )
+                    .exec()
+                    .await?;
 
                 Ok(compte)
             })
@@ -154,12 +205,12 @@ pub fn mount() -> RouterBuilder<Shared> {
                 id: i32,
             }
             t(|ctx, args: CompteDeleteArgs| async move {
-                let CompteDeleteArgs {
-                    id
-                } = args;
+                let CompteDeleteArgs { id } = args;
 
-                let compte = ctx.client
-                    .compte().delete(compte::id::equals(id))
+                let compte = ctx
+                    .client
+                    .compte()
+                    .delete(compte::id::equals(id))
                     .exec()
                     .await?;
 
