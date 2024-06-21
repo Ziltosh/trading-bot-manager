@@ -54,7 +54,7 @@ jobs:
               uses: pnpm/action-setup@v3
               with:
                   version: 8
-                  run_install: true
+                  run_install: false
 
             #      - name: Generate Prisma client
             #        shell: bash
@@ -63,11 +63,17 @@ jobs:
             #          cargo prisma validate
             #          cargo prisma generate
 
+            # - name: Install dependencies and bundle
+            #   run: pnpm i
+            #   env:
+            #     TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+            #     TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
             - uses: tauri-apps/tauri-action@v0
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-                  TAURI_KEY_PASSWORD: ${{ secrets.TAURI_PASSWORD }}
+                  TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
               #    DATABASE_URL: ${{ secrets.DATABASE_URL }}
               with:
                   tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
