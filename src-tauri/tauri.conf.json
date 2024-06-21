@@ -79,7 +79,7 @@
                 "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_x64_setup.exe",
                 "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_en-US.msi"
             ],
-            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ5OTc3QkFDOTI4RDRBOEYKUldTUFNvMlNySHVYU1lWQkdNb0p5VUc3OEZIRTJ0OWo1NUw4YmZvaEtSWlI0Q3hKbGswV2VmVVMK"
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk4RjRBNDBDQjZFMjlCQzYKUldUR20rSzJES1QwbUlSZlZLdEFaVzR5VERKSHZoNXVuSEhteFJSOE45Z2MxZ251S0U5QThCTDkK"
         },
         "windows": [
             {
