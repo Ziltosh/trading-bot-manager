@@ -12,16 +12,16 @@ jobs:
             fail-fast: false
             matrix:
                 settings:
-                    - platform: "macos-latest"
-                      args: "--target universal-apple-darwin"
+                    # - platform: "macos-latest"
+                    #   args: "--target universal-apple-darwin"
                     # - platform: "macos-latest" # for Arm based macs (M1 and above).
                     #   args: "--target aarch64-apple-darwin"
                     # - platform: "macos-latest" # for Intel based macs.
                     #   args: "--target x86_64-apple-darwin"
                     - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
                       args: ""
-                    - platform: "windows-latest"
-                      args: ""
+                    # - platform: "windows-latest"
+                    #   args: ""
 
         runs-on: ${{ matrix.settings.platform }}
         steps:
@@ -73,7 +73,9 @@ jobs:
             - uses: tauri-apps/tauri-action@dev
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_KEY_PASSWORD: ""
                   TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_PUBLIC_KEY: "${{ secrets.TAURI_PUBLIC_KEY }}"
               #    DATABASE_URL: ${{ secrets.DATABASE_URL }}
               with:
                   tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
