@@ -71,7 +71,7 @@
             "csp": null
         },
         "updater": {
-            "active": true,
+            "active": false,
             "endpoints": [
                 "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_amd64.AppImage",
                 "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_amd64.deb",
