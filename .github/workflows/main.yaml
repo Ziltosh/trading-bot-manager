@@ -14,11 +14,10 @@ jobs:
                 settings:
                     - platform: "macos-latest"
                       args: "--target universal-apple-darwin"
-                    - platform: "macos-latest" # for Arm based macs (M1 and above).
-                      args: "--target aarch64-apple-darwin"
-                    - platform: "macos-latest" # for Intel based macs.
-                      args: "--target x86_64-apple-darwin"
-                    - platform: "macos-latest"
+                    # - platform: "macos-latest" # for Arm based macs (M1 and above).
+                    #   args: "--target aarch64-apple-darwin"
+                    # - platform: "macos-latest" # for Intel based macs.
+                    #   args: "--target x86_64-apple-darwin"
                     - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
                       args: ""
                     - platform: "windows-latest"
@@ -48,7 +47,7 @@ jobs:
               # You can remove the one that doesn't apply to your app to speed up the workflow a bit.
 
             - name: install target x86 macOS dependencies
-              if: matrix.platform == 'macos-latest' && 'x86_64-apple-darwin'
+              if: matrix.platform == 'macos-latest'
               run: |
                   rustup target add x86_64-apple-darwin
 
