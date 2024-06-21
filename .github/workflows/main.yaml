@@ -7,16 +7,18 @@ on:
 
 jobs:
     publish-tauri:
-        permissions:
-            contents: write
+        permissions: write-all
         strategy:
             fail-fast: false
             matrix:
                 settings:
+                    - platform: "macos-latest"
+                      args: "--target universal-apple-darwin"
                     - platform: "macos-latest" # for Arm based macs (M1 and above).
                       args: "--target aarch64-apple-darwin"
                     - platform: "macos-latest" # for Intel based macs.
                       args: "--target x86_64-apple-darwin"
+                    - platform: "macos-latest"
                     - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
                       args: ""
                     - platform: "windows-latest"
@@ -54,7 +56,7 @@ jobs:
               uses: pnpm/action-setup@v3
               with:
                   version: 8
-                  run_install: false
+                  run_install: true
 
             #      - name: Generate Prisma client
             #        shell: bash
