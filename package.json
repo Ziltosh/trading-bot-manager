@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "vite",
         "build-local": "cargo prisma generate && tsc && vite build",
-        "build": "vite build",
+        "build": "cargo prisma generate && vite build",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview"
     },
