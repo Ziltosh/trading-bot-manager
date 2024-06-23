@@ -189,9 +189,9 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                                                 <TooltipContent className="space-y-2 bg-white p-4">
                                                     <img src={CheminRobotImg} />
                                                     <p>
-                                                        Dans ce cas mettre <i>/REB/REB-EMA-BB v3.1</i> par exemple
+                                                        Dans ce cas mettre <i>REB\REB-EMA-BB v3.1</i> par exemple
                                                         <br />
-                                                        ou <i>/REB/REB Strategy Creator v3.2</i>.
+                                                        ou <i>REB\REB Strategy Creator v3.2</i>.
                                                     </p>
                                                 </TooltipContent>
                                             </Tooltip>

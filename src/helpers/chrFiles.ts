@@ -60,7 +60,7 @@ export type makeParams = {
 export const make = (params: makeParams) => {
     let fileContent = `
 <chart>
-    `;
+`;
 
     const chart: typeof chartPart = {
         ...chartPart,
@@ -79,7 +79,7 @@ export const make = (params: makeParams) => {
         fileContent += `${entry[0]}=${entry[1]}\n`;
     });
 
-    fileContent += `\n<indicator>\n</indicator>\n`;
+    fileContent += `\n<indicator>\nname=main\n</indicator>\n`;
     fileContent += `\n</window>\n`;
 
     fileContent += `\n<expert>\n`;
@@ -94,7 +94,7 @@ export const make = (params: makeParams) => {
         fileContent += `${entry[0]}=${entry[1]}\n`;
     });
 
-    fileContent += `\n<inputs>\n`;
+    fileContent += `<inputs>\n`;
 
     fileContent += params.inputs;
 

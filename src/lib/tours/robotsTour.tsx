@@ -27,7 +27,7 @@ export const fakeRobots = [
     {
         id: 1,
         name: "Robot test",
-        chemin: "/REB/REB Test v1",
+        chemin: "REB\\REB Test v1",
         description: "Description",
         json_settings: "{}",
         tags: [{ robotId: 1, tagId: 1, tag: { name: "Tag test" } }],

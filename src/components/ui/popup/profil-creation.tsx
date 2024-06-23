@@ -74,7 +74,7 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                     {
                         nonTradingDD: "0",
                         paire: opti.paire,
-                        robotPath: `/${opti.robot.name}`,
+                        robotPath: `${opti.robot.name}`,
                         xlsm_path: opti.xlsm_path,
                         set_path: opti.set_path,
                         periode: tfInMinutes[opti.timeframe as keyof typeof tfInMinutes],
@@ -198,8 +198,8 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                     <p>
                         <strong>Chemin du robot:</strong> Ce champ correspond au chemin du robot dans l'arborescence
                         MT4, le départ de l'arborescence est le "dossier" Expert Consultant. Par exemple, si vous avez
-                        mis tout les robots REB dans un dossier REB, alors rentrez "/REB/Nom du robot v2.0" dans le
-                        champ ci-dessous.
+                        mis tout les robots REB dans un dossier REB, alors rentrez "REB\Nom du robot v2.0" dans le champ
+                        ci-dessous.
                         <br />
                         Exemple:{" "}
                         <TooltipProvider>
@@ -210,9 +210,9 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                                 <TooltipContent className="space-y-2 bg-white p-4">
                                     <img src={CheminRobotImg} />
                                     <p>
-                                        Dans ce cas mettre <i>/REB/REB-EMA-BB v3.1</i> par exemple
+                                        Dans ce cas mettre <i>REB\REB-EMA-BB v3.1</i> par exemple
                                         <br />
-                                        ou <i>/REB/REB Strategy Creator v3.2</i>.
+                                        ou <i>REB\REB Strategy Creator v3.2</i>.
                                     </p>
                                 </TooltipContent>
                             </Tooltip>

@@ -6,5 +6,6 @@
         "Enregistrement du filtrage dans la page optimisations",
         "Modifications diverses de textes",
         "Possibilité d'éditer les comptes"
-    ]
+    ],
+    "0.0.8": ["Possibilité d'éditer les robots"]
 }
