@@ -175,6 +175,8 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
             "zip.zip_directory",
             { path: savePath, folder: currentCompte.name, zip_name: `MT4_Profile_${currentCompte.name}` },
         ]);
+
+        onClosePopup();
     };
 
     return (

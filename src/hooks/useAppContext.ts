@@ -1,12 +1,14 @@
+import { AppContext } from "@/ToursProvider";
+import { Tours } from "@/types/tours";
 import { useContext } from "react";
-import { AppContext } from "@/WelcomeTourContext.tsx";
 import { Step } from "react-joyride";
 
-interface AppState {
+export interface AppState {
     run: boolean;
     stepIndex: number;
     steps: Step[];
     tourActive: boolean;
+    section: keyof Tours;
 }
 
 export default function useAppContext(): {

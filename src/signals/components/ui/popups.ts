@@ -9,3 +9,4 @@ export const $compteAddPopup = signal(false);
 export const $compteEditPopup = signal(false);
 export const $profilCreationPopup = signal(false);
 export const $settingsPopup = signal(false);
+export const $whatsNewPopup = signal(false);

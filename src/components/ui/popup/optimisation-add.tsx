@@ -231,7 +231,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             control={form.control}
                             name={"description"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-optimisations-add-description"}>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
                                         <Textarea {...field} placeholder={"Description..."} />
@@ -245,7 +245,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             control={form.control}
                             name={"paire"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-optimisations-add-paire"}>
                                     <FormLabel>Paire</FormLabel>
                                     <FormControl>
                                         <Input {...field} />
@@ -259,7 +259,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             control={form.control}
                             name={"robot_id"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-optimisations-add-robot"}>
                                     <FormLabel>Robot</FormLabel>
                                     <FormControl>
                                         <Select onValueChange={field.onChange}>
@@ -287,7 +287,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             control={form.control}
                             name={"compte_id"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-optimisations-add-compte"}>
                                     <FormLabel>Compte (facultatif)</FormLabel>
                                     <FormControl>
                                         <Select onValueChange={field.onChange}>
@@ -322,7 +322,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             control={form.control}
                             name={"timeframe"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={"tour-optimisations-add-timeframe"}>
                                     <FormLabel>Unité de temps</FormLabel>
                                     <FormControl>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -345,78 +345,80 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             )}
                         />
 
-                        <FormLabel>Tags</FormLabel>
-                        <div className={"flex flex-row flex-wrap gap-2"}>
-                            {fields.map((field, index) => (
-                                <div key={`div_${field.id}`}>
-                                    <Badge
-                                        key={`badge_${field.id}`}
-                                        variant={"secondary"}
-                                        className={"cursor-pointer bg-accent"}
-                                        onClick={() => remove(index)}
-                                    >
-                                        {field.value}
-                                    </Badge>
-                                    <FormField
-                                        control={form.control}
-                                        key={field.id}
-                                        name={`tags.${index}.value`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <Input className={"hidden"} {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                        <div className="tour-optimisations-add-tags space-y-2">
+                            <FormLabel>Tags</FormLabel>
+                            <div className={"flex flex-row flex-wrap gap-2"}>
+                                {fields.map((field, index) => (
+                                    <div key={`div_${field.id}`}>
+                                        <Badge
+                                            key={`badge_${field.id}`}
+                                            variant={"secondary"}
+                                            className={"cursor-pointer bg-accent"}
+                                            onClick={() => remove(index)}
+                                        >
+                                            {field.value}
+                                        </Badge>
+                                        <FormField
+                                            control={form.control}
+                                            key={field.id}
+                                            name={`tags.${index}.value`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input className={"hidden"} {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
 
-                        <FormLabel>Ajouter un tag</FormLabel>
-                        <div className="flex flex-wrap gap-2">
-                            {defaultTags.map((tag, index) => (
-                                <Badge
-                                    key={`badge_${index}`}
-                                    variant={
-                                        fields.filter((el) => el.value === tag.value).length > 0
-                                            ? "outline"
-                                            : "secondary"
-                                    }
-                                    className={
-                                        fields.filter((el) => el.value === tag.value).length === 0
-                                            ? "cursor-pointer hover:bg-accent"
-                                            : ""
-                                    }
-                                    onClick={() => {
-                                        if (fields.filter((el) => el.value === tag.value).length === 0) {
-                                            append({ value: tag.value });
+                            <FormLabel>Ajouter un tag</FormLabel>
+                            <div className="flex flex-wrap gap-2">
+                                {defaultTags.map((tag, index) => (
+                                    <Badge
+                                        key={`badge_${index}`}
+                                        variant={
+                                            fields.filter((el) => el.value === tag.value).length > 0
+                                                ? "outline"
+                                                : "secondary"
                                         }
-                                    }}
-                                >
-                                    {tag.value}
-                                </Badge>
-                            ))}
+                                        className={
+                                            fields.filter((el) => el.value === tag.value).length === 0
+                                                ? "cursor-pointer hover:bg-accent"
+                                                : ""
+                                        }
+                                        onClick={() => {
+                                            if (fields.filter((el) => el.value === tag.value).length === 0) {
+                                                append({ value: tag.value });
+                                            }
+                                        }}
+                                    >
+                                        {tag.value}
+                                    </Badge>
+                                ))}
+                            </div>
+                            <Input
+                                type={"text"}
+                                placeholder={"Tag personnalisé, entrée pour valider"}
+                                onKeyDown={(e) => {
+                                    // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        append({ value: e.currentTarget.value });
+                                        e.currentTarget.value = "";
+                                    }
+                                }}
+                            />
                         </div>
-                        <Input
-                            type={"text"}
-                            placeholder={"Tag personnalisé, entrée pour valider"}
-                            onKeyDown={(e) => {
-                                // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    append({ value: e.currentTarget.value });
-                                    e.currentTarget.value = "";
-                                }
-                            }}
-                        />
 
                         <FormField
                             control={form.control}
                             name={"set_path"}
                             render={({ field }) => (
-                                <FormItem className={"flex flex-col"}>
+                                <FormItem className={"tour-optimisations-add-set flex flex-col"}>
                                     <FormLabel>Fichier .set</FormLabel>
                                     <FormMessage />
                                     <Input {...field} readOnly={true} />
@@ -447,7 +449,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             control={form.control}
                             name={"xlsm_path"}
                             render={({ field }) => (
-                                <FormItem className={"flex flex-col"}>
+                                <FormItem className={"tour-optimisations-add-xlsm flex flex-col"}>
                                     <FormLabel>Fichier Excel</FormLabel>
                                     <FormMessage />
                                     <Input {...field} readOnly={true} />
@@ -562,7 +564,11 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                             <Button type={"button"} variant={"secondary"} onClick={onClosePopup}>
                                 Annuler
                             </Button>
-                            <Button type="submit" disabled={isCreating} className={"self-center"}>
+                            <Button
+                                type="submit"
+                                disabled={isCreating}
+                                className={"tour-optimisations-add-create self-center"}
+                            >
                                 {isCreating ? "Création en cours..." : "Créer"}
                             </Button>
                         </div>

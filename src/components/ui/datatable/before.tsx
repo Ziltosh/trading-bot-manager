@@ -10,22 +10,31 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { SlidersHorizontalIcon } from "lucide-react";
+import { useMount } from "react-use";
 
 interface DtProps<TData> {
     table: Table<TData>;
 }
 
 export function DtBefore<TData>({ table }: DtProps<TData>) {
+    useMount(() => {
+        const globalFilter = localStorage.getItem("globalFilter");
+        if (globalFilter) {
+            table.setGlobalFilter(globalFilter);
+        }
+    });
+
     return (
         <>
             <div className="flex items-center py-2">
                 <Input
                     placeholder="Filtrer..."
+                    defaultValue={localStorage.getItem("globalFilter") || ""}
                     onChange={(event) => {
-                        // table.getColumn("name")?.setFilterValue(event.target.value);
                         table.setGlobalFilter(event.target.value);
+                        localStorage.setItem("globalFilter", event.target.value);
                     }}
-                    className="max-w-sm"
+                    className="mx-1"
                 />
 
                 <DropdownMenu>

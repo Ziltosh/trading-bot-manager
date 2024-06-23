@@ -26,7 +26,7 @@ export const Layout = ({sidebar, content}: LayoutProps) => {
                 overflowX: "hidden",
                 overflowY: "scroll"
             }}>
-                <div className="p-2">
+                <div>
                     {content}
                 </div>
             </ResizablePanel>

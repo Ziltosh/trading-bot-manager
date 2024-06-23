@@ -28,7 +28,7 @@ import { useGlobalStore } from "@/stores/global-store";
 export const CompteContentDemo = () => {
     /** TOUR **/
     const {
-        state: { tourActive },
+        state: { run, section },
     } = useAppContext();
     /** END TOUR **/
 
@@ -37,12 +37,11 @@ export const CompteContentDemo = () => {
     const { isPending, isSuccess, data } = useQuery({
         queryKey: ["comptes", "get_demo"],
         queryFn: () => {
-            if (tourActive)
-                return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_demo">>((resolve) => {
-                    resolve([]);
-                });
+            if (!run || section !== "comptes") return rspcClient.query(["comptes.get_demo"]);
 
-            return rspcClient.query(["comptes.get_demo"]);
+            return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_demo">>((resolve) => {
+                resolve([]);
+            });
         },
     });
 

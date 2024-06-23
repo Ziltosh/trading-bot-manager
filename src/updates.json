@@ -1,0 +1,10 @@
+{
+    "0.0.5": ["Ajout de la création du profil Metatrader 4"],
+    "0.0.6": [
+        "Refonte du système de didacticiel",
+        "Ajout de la popup \"Quoi de neuf ?\"",
+        "Enregistrement du filtrage dans la page optimisations",
+        "Modifications diverses de textes",
+        "Possibilité d'éditer les comptes"
+    ]
+}

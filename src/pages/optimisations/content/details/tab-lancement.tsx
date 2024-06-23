@@ -5,6 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { convertToDate } from "@/helpers/periode.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
 import { generateSetFromParams, mergeSetParams } from "@/helpers/setFiles.ts";
+import useAppContext from "@/hooks/useAppContext";
+import { fakeOptimisationViewLancement } from "@/lib/tours/optimisationViewTour";
+import { Procedures } from "@/rspc_bindings";
+import { inferProcedureResult } from "@rspc/client";
 import { useQuery } from "@tanstack/react-query";
 import { save } from "@tauri-apps/api/dialog";
 import { writeTextFile } from "@tauri-apps/api/fs";
@@ -15,41 +19,25 @@ interface OptimisationTabLancementProps {
 }
 
 export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancementProps) => {
+    /** TOUR **/
+    const {
+        state: { run, section },
+    } = useAppContext();
+    /** END TOUR **/
+
     const { isSuccess: isSuccessLancementData, data: dataLancementData } = useQuery({
         queryKey: ["optimisations", "get_xlsm_lancement_data", dataOpById?.id],
         queryFn: () => {
-            return rspcClient.query(["optimisations.get_xlsm_lancement_data", { path: dataOpById!.xlsm_path }]);
+            if (!run || section !== "optimisationView")
+                return rspcClient.query(["optimisations.get_xlsm_lancement_data", { path: dataOpById!.xlsm_path }]);
+
+            return new Promise<inferProcedureResult<Procedures, "queries", "optimisations.get_xlsm_lancement_data">>(
+                (resolve) => {
+                    resolve(fakeOptimisationViewLancement);
+                },
+            );
         },
         // enabled: isSuccessOpById,
-        retry: (failureCount) => failureCount < 1,
-    });
-
-    const { isSuccess: isSuccessOptimisationData } = useQuery({
-        queryKey: ["optimisations", "get_xlsm_optimisation_data", dataOpById?.id],
-        queryFn: async () => {
-            const optimisationData = await rspcClient.query([
-                "optimisations.get_xlsm_optimisation_data",
-                {
-                    path: dataOpById!.xlsm_path,
-                    nb_periodes: dataLancementData!.nb_periodes,
-                },
-            ]);
-
-            for (let i = 0; i < optimisationData.periodes.length; i++) {
-                await rspcClient.mutation([
-                    "optimisation_periodes.create",
-                    {
-                        optimisation_id: dataOpById!.id,
-                        periode: optimisationData.periodes[i],
-                        profit: parseFloat(optimisationData.resultats[i]),
-                        drawdown: parseFloat(optimisationData.drawdowns[i]),
-                    },
-                ]);
-            }
-
-            return optimisationData;
-        },
-        enabled: isSuccessLancementData,
         retry: (failureCount) => failureCount < 1,
     });
 
@@ -82,7 +70,7 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
         await writeTextFile(savePath, file);
     };
 
-    if (isSuccessLancementData && isSuccessOptimisationData) {
+    if (isSuccessLancementData) {
         return (
             <div className="grid grid-cols-2 gap-2">
                 <Table>

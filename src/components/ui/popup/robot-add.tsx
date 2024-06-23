@@ -178,7 +178,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                             control={form.control}
                             name={"chemin"}
                             render={({ field }) => (
-                                <FormItem className={"tour-robots-add-path"}>
+                                <FormItem className={"tour-robots-add-chemin"}>
                                     <FormLabel>
                                         Chemin du robot dans MT4{" "}
                                         <TooltipProvider>

@@ -1,18 +1,3 @@
-import { H2 } from "@/components/ui/typos.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { rspcClient } from "@/helpers/rspc.ts";
-import { useNavigate } from "react-router-dom";
-import { OptimisationDataTable } from "@/components/ui/custom/optimisations/optimisations-datatable.tsx";
-import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo } from "react";
-import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon, XIcon } from "lucide-react";
-import { inferProcedureResult } from "@rspc/client";
-import { Procedures } from "@/rspc_bindings.ts";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
-import { $optimisationAddPopup, $optimisationEditPopup } from "@/signals/components/ui/popups.ts";
-import { convertToDate } from "@/helpers/periode.ts";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -23,25 +8,31 @@ import {
     AlertDialogHeader,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
-import { useGlobalStore } from "@/stores/global-store.ts";
-import { useMount } from "react-use";
+import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Help } from "@/components/ui/custom/help";
+import { OptimisationDataTable } from "@/components/ui/custom/optimisations/optimisations-datatable.tsx";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { H2 } from "@/components/ui/typos.tsx";
+import { convertToDate } from "@/helpers/periode.ts";
+import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
-import { TourSteps } from "@/WelcomeTourSteps.ts";
+import { fakeOptimisations } from "@/lib/tours/optimisationsTour";
+import { Procedures } from "@/rspc_bindings.ts";
+import { $optimisationAddPopup, $optimisationEditPopup } from "@/signals/components/ui/popups.ts";
+import { useGlobalStore } from "@/stores/global-store.ts";
+import { inferProcedureResult } from "@rspc/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon, XIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const OptimisationContentMain = () => {
     /** TOUR **/
     const {
-        setState,
-        state: { tourActive },
+        state: { run, section },
     } = useAppContext();
-
-    useMount(() => {
-        if (tourActive) {
-            setTimeout(() => {
-                setState({ run: true, stepIndex: TourSteps.TOUR_OPTIMISATION });
-            }, 100);
-        }
-    });
     /** END TOUR **/
 
     const navigate = useNavigate();
@@ -53,29 +44,42 @@ export const OptimisationContentMain = () => {
         // console.log(await invoke("test"));
     };
 
-    const handleEditOptimisation = async (id: number) => {
-        $optimisationEditPopup.set(true);
-        const opti = await rspcClient.query(["optimisations.get_by_id", { id: id }]);
-        setCurrentOptimisation(opti || undefined);
-    };
+    const handleEditOptimisation = useCallback(
+        async (id: number) => {
+            $optimisationEditPopup.set(true);
+            const opti = await rspcClient.query(["optimisations.get_by_id", { id: id }]);
+            setCurrentOptimisation(opti || undefined);
+        },
+        [setCurrentOptimisation],
+    );
 
     const { data, isLoading } = useQuery({
-        queryKey: ["optimisations.all"],
+        queryKey: ["optimisations", "all"],
         queryFn: () => {
-            return rspcClient.query(["optimisations.all"]);
+            if (!run || section !== "optimisations") return rspcClient.query(["optimisations.all"]);
+
+            return new Promise<inferProcedureResult<Procedures, "queries", "optimisations.all">>((resolve) => {
+                resolve(fakeOptimisations);
+            });
         },
     });
 
-    const handleSelectOptimisation = (id: number) => {
-        navigate(`/optimisations/${id}`);
-    };
+    const handleSelectOptimisation = useCallback(
+        (id: number) => {
+            navigate(`/optimisations/${id}`);
+        },
+        [navigate],
+    );
 
-    const handleDeleteOptimisation = async (id: number) => {
-        await rspcClient.mutation(["optimisations.delete", { id: id }]);
-        await queryClient.invalidateQueries({
-            queryKey: ["optimisations.all"],
-        });
-    };
+    const handleDeleteOptimisation = useCallback(
+        async (id: number) => {
+            await rspcClient.mutation(["optimisations.delete", { id: id }]);
+            await queryClient.invalidateQueries({
+                queryKey: ["optimisations.all"],
+            });
+        },
+        [queryClient],
+    );
 
     const columnHelper = createColumnHelper<inferProcedureResult<Procedures, "queries", "optimisations.all">[0]>();
 
@@ -87,14 +91,18 @@ export const OptimisationContentMain = () => {
                     return (
                         <div className="flex gap-1">
                             <Button
-                                className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
+                                className={
+                                    "tour-optimisations-view w-10 p-0 hover:bg-accent hover:text-accent-foreground"
+                                }
                                 variant={"secondary"}
                                 onClick={() => handleSelectOptimisation(row.original.id)}
                             >
                                 <EyeIcon className="h-4 w-4" />
                             </Button>
                             <Button
-                                className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
+                                className={
+                                    "tour-optimisations-edit w-10 p-0 hover:bg-accent hover:text-accent-foreground"
+                                }
                                 variant={"secondary"}
                                 onClick={() => handleEditOptimisation(row.original.id)}
                             >
@@ -104,7 +112,7 @@ export const OptimisationContentMain = () => {
                                 <AlertDialogTrigger asChild>
                                     <Button
                                         className={
-                                            "h-10 w-10 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                            "tour-optimisations-delete h-10 w-10 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                         }
                                         variant={"ghost"}
                                     >
@@ -164,8 +172,12 @@ export const OptimisationContentMain = () => {
             //         return <div className={"flex items-center gap-2"}>{row.original.robot.name}</div>;
             //     },
             // }),
-            columnHelper.accessor("compte", {
-                id: "robot",
+            columnHelper.accessor("compte.name", {
+                id: "compte",
+                enableColumnFilter: true,
+                filterFn: (row, filterValue) => {
+                    return row.original.compte?.name.toLowerCase().includes(filterValue.toLowerCase()) ?? false;
+                },
                 header: ({ column }) => {
                     return (
                         <Button
@@ -179,7 +191,8 @@ export const OptimisationContentMain = () => {
                     );
                 },
                 cell: ({ row }) => {
-                    return <div className={"flex items-center gap-2"}>{row.original.compte?.name || "Aucun"}</div>;
+                    // return <div className={"flex items-center gap-2"}>{row.original.compte?.name || "Aucun"}</div>;
+                    return row.original.compte?.name;
                 },
             }),
             columnHelper.accessor("capital", {
@@ -236,8 +249,12 @@ export const OptimisationContentMain = () => {
             //         return <span>{row.original.timeframe}</span>;
             //     },
             // }),
-            columnHelper.accessor("tags", {
+            columnHelper.accessor((row) => row.tags.map((tag) => tag.tag.name).join(", "), {
                 id: "tags",
+                filterFn: (row, filterValue) => {
+                    console.log(row, filterValue);
+                    return row.original.tags.some((tag) => tag.tag.name === filterValue);
+                },
                 header: () => <span>Tags</span>,
                 cell: ({ row }) => {
                     return (
@@ -327,12 +344,15 @@ export const OptimisationContentMain = () => {
                 },
             }),
         ],
-        [columnHelper],
+        [columnHelper, handleDeleteOptimisation, handleEditOptimisation, handleSelectOptimisation],
     );
 
     return (
         <div className="tour-optimisations flex flex-col overflow-y-scroll">
-            <H2>Optimisations</H2>
+            <div className="flex items-center justify-between">
+                <H2 className="flex-grow">Les optimisations</H2>
+                <Help section="optimisations" />
+            </div>
 
             {data?.length === 0 && <p>Aucune optimisation.</p>}
             {data && data?.length > 0 && (

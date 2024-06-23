@@ -1,14 +1,17 @@
 import { Footer } from "@/components/ui/footer/footer.tsx";
 import { Header } from "@/components/ui/header/header.tsx";
 import { PopupCompteAdd } from "@/components/ui/popup/compte-add.tsx";
+import { PopupCompteEdit } from "@/components/ui/popup/compte-edit";
 import { PopupOptimisationAdd } from "@/components/ui/popup/optimisation-add.tsx";
 import { PopupOptimisationEdit } from "@/components/ui/popup/optimisation-edit.tsx";
 import { PopupPortfolioAdd } from "@/components/ui/popup/portfolio-add.tsx";
 import { PopupProfilCreation } from "@/components/ui/popup/profil-creation";
 import { PopupRobotAdd } from "@/components/ui/popup/robot-add.tsx";
 import { PopupSettings } from "@/components/ui/popup/settings.tsx";
+import { PopupWhatsNew } from "@/components/ui/popup/whats-new";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.tsx";
 import { useSignal } from "@/hooks/useSignal.ts";
+import { queries } from "@/queries/queries";
 import {
     $compteAddPopup,
     $compteEditPopup,
@@ -18,13 +21,21 @@ import {
     $profilCreationPopup,
     $robotAddPopup,
     $settingsPopup,
+    $whatsNewPopup,
 } from "@/signals/components/ui/popups.ts";
-import { WelcomeTour } from "@/WelcomeTour.tsx";
-import { WelcomeTourProvider } from "@/WelcomeTourContext.tsx";
+import { RootTour } from "@/tours/RootTour";
+import { ToursProvider } from "@/ToursProvider";
+import { useQuery } from "@tanstack/react-query";
+import { getVersion } from "@tauri-apps/api/app";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
+import { ComptesTour } from "@/tours/ComptesTour";
+import { RobotsTour } from "@/tours/RobotsTour";
 import "./assets/css/app.css";
-import { PopupCompteEdit } from "@/components/ui/popup/compte-edit";
+import { OptimisationsTour } from "@/tours/OptimisationsTour";
+import { OptimisationViewTour } from "@/tours/OptimisationViewTour";
+import { DashboardTour } from "@/tours/DashboardTour";
 
 function App() {
     const portfolioAddPopup = useSignal($portfolioAddPopup);
@@ -35,11 +46,26 @@ function App() {
     const optimisationEditPopup = useSignal($optimisationEditPopup);
     const profilCreationPopup = useSignal($profilCreationPopup);
     const settingsPopup = useSignal($settingsPopup);
+    const whatsNewPopup = useSignal($whatsNewPopup);
+
+    const version = useQuery({ queryKey: [queries.version], queryFn: getVersion });
+
+    useEffect(() => {
+        if (version.data && localStorage.getItem("version") !== version.data) {
+            $whatsNewPopup.set(true);
+            localStorage.setItem("version", version.data);
+        }
+    }, [version.data]);
 
     return (
         <>
-            <WelcomeTourProvider>
-                <WelcomeTour />
+            <ToursProvider>
+                <RootTour />
+                <RobotsTour />
+                <ComptesTour />
+                <OptimisationsTour />
+                <OptimisationViewTour />
+                <DashboardTour />
 
                 {portfolioAddPopup && (
                     <PopupPortfolioAdd
@@ -89,6 +115,8 @@ function App() {
                     />
                 )}
 
+                {whatsNewPopup && <PopupWhatsNew onClosePopup={() => $whatsNewPopup.set(false)} />}
+
                 {optimisationAddPopup && <PopupOptimisationAdd onClosePopup={() => $optimisationAddPopup.set(false)} />}
 
                 {optimisationEditPopup && (
@@ -110,7 +138,7 @@ function App() {
                         </ResizablePanelGroup>
                     </ResizablePanel>
                 </ResizablePanelGroup>
-            </WelcomeTourProvider>
+            </ToursProvider>
         </>
     );
 }

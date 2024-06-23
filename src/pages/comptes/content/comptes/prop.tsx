@@ -25,19 +25,18 @@ import useAppContext from "@/hooks/useAppContext.ts";
 export const CompteContentProp = () => {
     /** TOUR **/
     const {
-        state: { tourActive },
+        state: { run, section },
     } = useAppContext();
     /** END TOUR **/
 
     const { isSuccess, isPending, data } = useQuery({
         queryKey: ["comptes", "get_prop"],
         queryFn: () => {
-            if (tourActive)
-                return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_prop">>((resolve) => {
-                    resolve([]);
-                });
+            if (!run || section !== "comptes") return rspcClient.query(["comptes.get_prop"]);
 
-            return rspcClient.query(["comptes.get_prop"]);
+            return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_prop">>((resolve) => {
+                resolve([]);
+            });
         },
     });
 
@@ -61,7 +60,6 @@ export const CompteContentProp = () => {
                                 <EyeIcon className="h-4 w-4" />
                             </Button>
                             <Button
-                                disabled={true}
                                 className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
                                 onClick={() => null}

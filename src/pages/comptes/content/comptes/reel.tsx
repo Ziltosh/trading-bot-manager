@@ -1,13 +1,3 @@
-import { createColumnHelper } from "@tanstack/react-table";
-import { inferProcedureResult } from "@rspc/client";
-import { Procedures } from "@/rspc_bindings.ts";
-import { useMemo } from "react";
-import { Button } from "@/components/ui/button.tsx";
-import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { rspcClient } from "@/helpers/rspc.ts";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,15 +8,26 @@ import {
     AlertDialogHeader,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
-import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { CompteReelDataTable } from "@/components/ui/custom/comptes/reel-datatable.tsx";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
+import { fakeComptes } from "@/lib/tours/comptesTour";
+import { Procedures } from "@/rspc_bindings.ts";
 import { MyfxbookMyAccountsResponse } from "@/types/myfxbook.ts";
+import { inferProcedureResult } from "@rspc/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const CompteContentReel = () => {
     /** TOUR **/
     const {
-        state: { tourActive },
+        state: { run, section },
     } = useAppContext();
     /** END TOUR **/
 
@@ -37,25 +38,10 @@ export const CompteContentReel = () => {
     } = useQuery({
         queryKey: ["comptes", "get_reel"],
         queryFn: () => {
-            if (!tourActive) return rspcClient.query(["comptes.get_reel"]);
+            if (!run || section !== "comptes") return rspcClient.query(["comptes.get_reel"]);
 
             return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_reel">>((resolve) => {
-                resolve([
-                    {
-                        id: 1,
-                        name: "Compte test",
-                        capital: 1000,
-                        devise: "USD",
-                        courtier: "IC Markets",
-                        numero: "123456",
-                        plateforme: "mt4",
-                        status: "Actif",
-                        tags: [{ tagId: 1, tag: { name: "Tag 1" }, compteId: 1 }],
-                        type_compte: "reel",
-                        password: "password",
-                        serveur: "serveur",
-                    },
-                ]);
+                resolve(fakeComptes);
             });
         },
     });
@@ -75,6 +61,23 @@ export const CompteContentReel = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
+    const handleSelectCompte = useCallback(
+        (id: number, myfxbookId?: number) => {
+            navigate(`/comptes/${id}/${myfxbookId}`);
+        },
+        [navigate],
+    );
+
+    const handleDeleteCompte = useCallback(
+        async (id: number) => {
+            await rspcClient.mutation(["comptes.delete", { id: id }]);
+            await queryClient.invalidateQueries({
+                queryKey: ["comptes", "get_reel"],
+            });
+        },
+        [queryClient],
+    );
+
     const columnHelper = createColumnHelper<inferProcedureResult<Procedures, "queries", "comptes.get_reel">[0]>();
 
     const columns = useMemo(
@@ -88,15 +91,14 @@ export const CompteContentReel = () => {
                     return (
                         <div className="flex gap-1">
                             <Button
-                                className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
+                                className={"tour-comptes-view w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
                                 onClick={() => handleSelectCompte(row.original.id, myfxbookAccount?.id)}
                             >
                                 <EyeIcon className="h-4 w-4" />
                             </Button>
                             <Button
-                                disabled={true}
-                                className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
+                                className={"tour-comptes-edit w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
                                 onClick={() => null}
                             >
@@ -106,7 +108,7 @@ export const CompteContentReel = () => {
                                 <AlertDialogTrigger asChild>
                                     <Button
                                         className={
-                                            "h-10 w-10 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                            "tour-comptes-delete h-10 w-10 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                         }
                                         variant={"ghost"}
                                     >
@@ -235,7 +237,7 @@ export const CompteContentReel = () => {
                 cell: ({ row }) => {
                     return (
                         <div className={"flex gap-2"}>
-                            <Badge variant={"outline"}>{row.original.plateforme.toUpperCase()}</Badge>
+                            <Badge variant={"outline"}>{row.original.plateforme?.toUpperCase()}</Badge>
                             <div className={"flex items-center gap-2"}>{row.getValue("numero")}</div>
                         </div>
                     );
@@ -261,19 +263,8 @@ export const CompteContentReel = () => {
                 },
             }),
         ],
-        [columnHelper],
+        [columnHelper, handleDeleteCompte, handleSelectCompte, myfxbookData?.accounts, myfxbookSuccess],
     );
-
-    const handleSelectCompte = (id: number, myfxbookId?: number) => {
-        navigate(`/comptes/${id}/${myfxbookId}`);
-    };
-
-    const handleDeleteCompte = async (id: number) => {
-        await rspcClient.mutation(["comptes.delete", { id: id }]);
-        await queryClient.invalidateQueries({
-            queryKey: ["comptes", "get_reel"],
-        });
-    };
 
     if (comptesIsSuccess) return <CompteReelDataTable data={data} columns={columns} isLoading={comptesIsPending} />;
 

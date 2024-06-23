@@ -6,6 +6,7 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    GlobalFilterTableState,
     PaginationState,
     SortingState,
     useReactTable,
@@ -25,7 +26,7 @@ export function RobotsDataTable<TData, TValue>({ columns, data, isLoading = true
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [paginationState, setPaginationState] = useState<PaginationState>({ pageSize: 20, pageIndex: 0 });
-    const [globalFilter, setGlobalFilter] = useState("");
+    const [globalFilter, setGlobalFilter] = useState<GlobalFilterTableState>();
 
     const table = useReactTable({
         data,
@@ -38,6 +39,7 @@ export function RobotsDataTable<TData, TValue>({ columns, data, isLoading = true
         getFilteredRowModel: getFilteredRowModel(),
         onPaginationChange: setPaginationState,
         onGlobalFilterChange: setGlobalFilter,
+        enableColumnResizing: true,
         state: {
             sorting,
             columnFilters,

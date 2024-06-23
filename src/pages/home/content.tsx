@@ -7,7 +7,7 @@ export const HomeContent = () => {
     const location = useLocation();
 
     return (
-        <div className="relative flex h-full w-full flex-col gap-2 p-2">
+        <div className="relative flex h-full w-full flex-col m-2">
             {location.pathname === "/home" ? <HomeContentMain /> : <Outlet />}
             {location.pathname === "/" && <HomeContentRoot />}
         </div>

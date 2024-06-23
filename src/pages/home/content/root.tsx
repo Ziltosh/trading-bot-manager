@@ -1,31 +1,27 @@
+import { Help } from "@/components/ui/custom/help";
 import { H2, H4 } from "@/components/ui/typos.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import useAppContext from "@/hooks/useAppContext.ts";
-import { useMount } from "react-use";
 
 export const HomeContentRoot = () => {
-    const {
-        setState,
-        state: { run, tourActive },
-    } = useAppContext();
+    // const {
+    //     setState,
+    //     state: { run, tourActive },
+    // } = useAppContext();
 
-    useMount(() => {
-        if (tourActive) {
-            setTimeout(() => {
-                setState({ run: true, stepIndex: 0 });
-            }, 200);
-        }
-    });
+    // useMount(() => {
+    //     if (tourActive) {
+    //         setTimeout(() => {
+    //             setState({ run: true, stepIndex: 0 });
+    //         }, 200);
+    //     }
+    // });
 
     return (
-        <div className={"tour-accueil flex h-full w-full flex-col gap-2"}>
-            {!run && (
-                <Button className={"my-3"} onClick={() => setState({ run: true, tourActive: true })}>
-                    Voir la visite guidée
-                </Button>
-            )}
+        <div className={"tour-accueil flex h-full flex-col gap-2"}>
+            <div className="mr-3 flex items-center justify-between">
+                <H2 className="flex-grow">Bienvenue</H2>
+                <Help section="root" />
+            </div>
 
-            <H2>Bienvenue</H2>
             <H4>Étape 1: Ajoutez vos robots</H4>
             <H4>Étape 2: Ajoutez vos comptes</H4>
             <H4>Étape 3: Ajoutez vos optimisations</H4>

@@ -16,16 +16,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { H2 } from "@/components/ui/typos.tsx";
 import { courtiers } from "@/helpers/courtiers.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
-import useAppContext from "@/hooks/useAppContext.ts";
 import { cn } from "@/lib/utils.ts";
 import { CompteCreateArgs } from "@/rspc_bindings.ts";
-import { TourSteps } from "@/WelcomeTourSteps.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useMount } from "react-use";
 import * as z from "zod";
 
 interface PopupCompteAddProps {
@@ -33,21 +30,6 @@ interface PopupCompteAddProps {
 }
 
 export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
-    /** TOUR **/
-    const {
-        setState,
-        state: { tourActive },
-    } = useAppContext();
-
-    useMount(() => {
-        if (tourActive) {
-            setTimeout(() => {
-                setState({ run: true, stepIndex: TourSteps.TOUR_COMPTE_ADD_NAME });
-            }, 100);
-        }
-    });
-    /** END TOUR **/
-
     const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -283,7 +265,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                             control={form.control}
                             name={"status"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="tour-comptes-add-status">
                                     <FormLabel>Status</FormLabel>
                                     <FormControl>
                                         <Select onValueChange={field.onChange}>
@@ -316,7 +298,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                             control={form.control}
                             name={"capital"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="tour-comptes-add-capital">
                                     <FormLabel>Capital</FormLabel>
                                     <FormControl>
                                         <Input {...field} type={"number"} />
@@ -330,7 +312,7 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                             control={form.control}
                             name={"devise"}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="tour-comptes-add-devise">
                                     <FormLabel>Devise</FormLabel>
                                     <FormControl>
                                         <Select onValueChange={field.onChange}>
@@ -419,71 +401,73 @@ export const PopupCompteAdd = ({ onClosePopup }: PopupCompteAddProps) => {
                             />
                         </div>
 
-                        <FormLabel>Tags</FormLabel>
-                        <div className={"flex flex-row flex-wrap gap-2"}>
-                            {fields.map((field, index) => (
-                                <div key={`div_${field.id}`}>
+                        <div className="tour-comptes-add-tags space-y-2">
+                            <FormLabel>Tags</FormLabel>
+                            <div className={"flex flex-row flex-wrap gap-2"}>
+                                {fields.map((field, index) => (
+                                    <div key={`div_${field.id}`}>
+                                        <Badge
+                                            key={`badge_${field.id}`}
+                                            variant={"secondary"}
+                                            className={"cursor-pointer bg-accent"}
+                                            onClick={() => remove(index)}
+                                        >
+                                            {field.value}
+                                        </Badge>
+                                        <FormField
+                                            control={form.control}
+                                            key={field.id}
+                                            name={`tags.${index}.value`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input className={"hidden"} {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <FormLabel>Ajouter un tag</FormLabel>
+                            <div className="flex flex-wrap gap-2">
+                                {defaultTags.map((tag, index) => (
                                     <Badge
-                                        key={`badge_${field.id}`}
-                                        variant={"secondary"}
-                                        className={"cursor-pointer bg-accent"}
-                                        onClick={() => remove(index)}
-                                    >
-                                        {field.value}
-                                    </Badge>
-                                    <FormField
-                                        control={form.control}
-                                        key={field.id}
-                                        name={`tags.${index}.value`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <Input className={"hidden"} {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        <FormLabel>Ajouter un tag</FormLabel>
-                        <div className="flex flex-wrap gap-2">
-                            {defaultTags.map((tag, index) => (
-                                <Badge
-                                    key={`badge_${index}`}
-                                    variant={
-                                        fields.filter((el) => el.value === tag.value).length > 0
-                                            ? "outline"
-                                            : "secondary"
-                                    }
-                                    className={
-                                        fields.filter((el) => el.value === tag.value).length === 0
-                                            ? "cursor-pointer hover:bg-accent"
-                                            : ""
-                                    }
-                                    onClick={() => {
-                                        if (fields.filter((el) => el.value === tag.value).length === 0) {
-                                            append({ value: tag.value });
+                                        key={`badge_${index}`}
+                                        variant={
+                                            fields.filter((el) => el.value === tag.value).length > 0
+                                                ? "outline"
+                                                : "secondary"
                                         }
-                                    }}
-                                >
-                                    {tag.value}
-                                </Badge>
-                            ))}
+                                        className={
+                                            fields.filter((el) => el.value === tag.value).length === 0
+                                                ? "cursor-pointer hover:bg-accent"
+                                                : ""
+                                        }
+                                        onClick={() => {
+                                            if (fields.filter((el) => el.value === tag.value).length === 0) {
+                                                append({ value: tag.value });
+                                            }
+                                        }}
+                                    >
+                                        {tag.value}
+                                    </Badge>
+                                ))}
+                            </div>
+                            <Input
+                                type={"text"}
+                                placeholder={"Tag personnalisé, entrée pour valider"}
+                                onKeyDown={(e) => {
+                                    // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        append({ value: e.currentTarget.value });
+                                        e.currentTarget.value = "";
+                                    }
+                                }}
+                            />
                         </div>
-                        <Input
-                            type={"text"}
-                            placeholder={"Tag personnalisé, entrée pour valider"}
-                            onKeyDown={(e) => {
-                                // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    append({ value: e.currentTarget.value });
-                                    e.currentTarget.value = "";
-                                }
-                            }}
-                        />
 
                         <div className="flex gap-2 self-center">
                             <Button type={"button"} variant={"secondary"} onClick={onClosePopup}>

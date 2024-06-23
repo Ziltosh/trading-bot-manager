@@ -1,7 +1,7 @@
-import { RobotSettings } from "@/components/ui/custom/robot-settings.ts.tsx";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { rspcClient } from "@/helpers/rspc.ts";
 import { Button } from "@/components/ui/button.tsx";
+import { RobotSettings } from "@/components/ui/custom/robot-settings.ts.tsx";
+import { rspcClient } from "@/helpers/rspc.ts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
 import { appDataDir } from "@tauri-apps/api/path";

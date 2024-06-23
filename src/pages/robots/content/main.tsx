@@ -10,58 +10,41 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { Help } from "@/components/ui/custom/help";
 import { RobotsDataTable } from "@/components/ui/custom/robots/robots-datatable.tsx";
 import { H2 } from "@/components/ui/typos.tsx";
 import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
+import { fakeRobots } from "@/lib/tours/robotsTour";
 import { Procedures } from "@/rspc_bindings.ts";
 import { $robotAddPopup, $robotEditPopup } from "@/signals/components/ui/popups.ts";
 import { useGlobalStore } from "@/stores/global-store.ts";
-import { TourSteps } from "@/WelcomeTourSteps.ts";
 import { inferProcedureResult } from "@rspc/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMount } from "react-use";
 
 export const RobotContentMain = () => {
     /** TOUR **/
     const {
-        setState,
-        state: { tourActive },
+        state: { run, section },
     } = useAppContext();
 
-    useMount(() => {
-        if (tourActive) {
-            setTimeout(() => {
-                setState({ run: true, stepIndex: TourSteps.TOUR_ROBOT });
-            }, 200);
-        }
-    });
     /** END TOUR **/
 
     const { setCurrentRobot } = useGlobalStore();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isFetching } = useQuery({
         queryKey: ["robots", "all"],
         queryFn: () => {
-            if (!tourActive) return rspcClient.query(["robots.all"]);
+            if (!run || section !== "robots") return rspcClient.query(["robots.all"]);
 
             return new Promise<inferProcedureResult<Procedures, "queries", "robots.all">>((resolve) => {
-                resolve([
-                    {
-                        id: 1,
-                        name: "Robot test",
-                        chemin: "/REB/REB Test v1",
-                        description: "Description",
-                        json_settings: "{}",
-                        tags: [{ robotId: 1, tagId: 1, tag: { name: "Tag test" } }],
-                    },
-                ]);
+                resolve(fakeRobots);
             });
         },
     });
@@ -70,122 +53,131 @@ export const RobotContentMain = () => {
         $robotAddPopup.set(true);
     };
 
-    const handleEditRobot = async (id: number) => {
-        $robotEditPopup.set(true);
-        const robot = await rspcClient.query(["robots.get_by_id", { id: id }]);
-        setCurrentRobot(robot || undefined);
-    };
+    const handleEditRobot = useCallback(
+        async (id: number) => {
+            $robotEditPopup.set(true);
+            const robot = await rspcClient.query(["robots.get_by_id", { id: id }]);
+            setCurrentRobot(robot || undefined);
+        },
+        [setCurrentRobot],
+    );
 
-    const handleSelectRobot = (id: number) => {
-        navigate(`/robots/${id}`);
-    };
+    const handleSelectRobot = useCallback(
+        (id: number) => {
+            navigate(`/robots/${id}`);
+        },
+        [navigate],
+    );
 
-    const handleDeleteRobot = async (id: number) => {
-        await rspcClient.mutation(["robots.delete", { id }]);
-        await queryClient.invalidateQueries({
-            queryKey: ["robots.all"],
-        });
-    };
+    const handleDeleteRobot = useCallback(
+        async (id: number) => {
+            await rspcClient.mutation(["robots.delete", { id }]);
+            await queryClient.invalidateQueries({
+                queryKey: ["robots.all"],
+            });
+        },
+        [queryClient],
+    );
 
     setCurrentRobot(undefined);
 
     const columnHelper = createColumnHelper<inferProcedureResult<Procedures, "queries", "robots.all">[0]>();
 
-    const columns = useMemo(
-        () => [
-            columnHelper.display({
-                id: "actions",
-                cell: ({ row }) => {
-                    return (
-                        <div className="flex gap-1">
-                            <Button
-                                className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
-                                variant={"secondary"}
-                                onClick={() => handleSelectRobot(row.original.id)}
-                            >
-                                <EyeIcon className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
-                                variant={"secondary"}
-                                disabled
-                                onClick={() => handleEditRobot(row.original.id)}
-                            >
-                                <PencilIcon className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        className={
-                                            "h-10 w-10 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                        }
-                                        variant={"ghost"}
-                                    >
-                                        <TrashIcon className="h-4 w-4" />
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>Confirmation</AlertDialogHeader>
-                                    <AlertDialogDescription>
-                                        Voulez vous vraiment supprimer cette optimisation ?
-                                    </AlertDialogDescription>
-                                    <AlertDialogFooter>
-                                        <AlertDialogAction onClick={() => handleDeleteRobot(row.original.id)}>
-                                            Confirmer
-                                        </AlertDialogAction>
-                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </div>
-                    );
-                },
-            }),
-            columnHelper.accessor("name", {
-                id: "name",
-                header: ({ column }) => {
-                    return (
+    const columns = [
+        columnHelper.display({
+            id: "actions",
+            cell: ({ row }) => {
+                return (
+                    <div className="flex gap-1">
                         <Button
-                            variant="ghost"
-                            size={"sm"}
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                            className={"tour-robots-view w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
+                            variant={"secondary"}
+                            onClick={() => handleSelectRobot(row.original.id)}
                         >
-                            Nom
-                            <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+                            <EyeIcon className="h-4 w-4" />
                         </Button>
-                    );
-                },
-                cell: ({ row }) => {
-                    return <div className={"flex items-center gap-2"}>{row.getValue("name")}</div>;
-                },
-            }),
-            columnHelper.accessor("tags", {
-                id: "tags",
-                header: () => <span>Tags</span>,
-                cell: ({ row }) => {
-                    return (
-                        <div className={"flex gap-2"}>
-                            {row.original.tags.map((tag) => (
-                                <Badge variant={"secondary"} key={tag.tagId} className={"whitespace-nowrap"}>
-                                    {tag.tag.name}
-                                </Badge>
-                            ))}
-                        </div>
-                    );
-                },
-            }),
-        ],
-        [columnHelper],
-    );
+                        <Button
+                            className={"tour-robots-edit w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
+                            variant={"secondary"}
+                            disabled
+                            onClick={() => handleEditRobot(row.original.id)}
+                        >
+                            <PencilIcon className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    className={
+                                        "tour-robots-delete h-10 w-10 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                    }
+                                    variant={"ghost"}
+                                >
+                                    <TrashIcon className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>Confirmation</AlertDialogHeader>
+                                <AlertDialogDescription>
+                                    Voulez vous vraiment supprimer cette optimisation ?
+                                </AlertDialogDescription>
+                                <AlertDialogFooter>
+                                    <AlertDialogAction onClick={() => handleDeleteRobot(row.original.id)}>
+                                        Confirmer
+                                    </AlertDialogAction>
+                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                );
+            },
+        }),
+        columnHelper.accessor("name", {
+            id: "name",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        size={"sm"}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Nom
+                        <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
+            cell: ({ row }) => {
+                return <div className={"flex items-center gap-2"}>{row.getValue("name")}</div>;
+            },
+        }),
+        columnHelper.accessor("tags", {
+            id: "tags",
+            header: () => <span>Tags</span>,
+            cell: ({ row }) => {
+                return (
+                    <div className={"flex gap-2"}>
+                        {row.original.tags.map((tag) => (
+                            <Badge variant={"secondary"} key={tag.tagId} className={"whitespace-nowrap"}>
+                                {tag.tag.name}
+                            </Badge>
+                        ))}
+                    </div>
+                );
+            },
+        }),
+    ];
 
     return (
         <div className="tour-robots flex flex-col overflow-y-scroll">
-            <H2>Robots</H2>
+            <div className="flex items-center justify-between">
+                <H2 className="flex-grow">Les robots</H2>
+                <Help section="robots" />
+            </div>
 
             {data?.length === 0 && <p>Aucun robot.</p>}
-            {data && data?.length > 0 && (
+            {!isLoading && !isFetching && data && data?.length > 0 && (
                 <div className={"my-2"}>
-                    <RobotsDataTable columns={columns} data={data!} isLoading={isLoading} />
+                    <RobotsDataTable columns={columns} data={data} isLoading={isLoading} />
                 </div>
             )}
 

@@ -42,6 +42,16 @@ export function OptimisationDataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         onPaginationChange: setPaginationState,
         onGlobalFilterChange: setGlobalFilter,
+        enableColumnFilters: true,
+        enableFilters: true,
+        // globalFilterFn: (row, columnId, filterValue) => {
+        //     console.log(row.original.tags, columnId);
+        //     if (columnId === "tags") {
+        //         console.log(row.original);
+        //         return row.original.tags.some((tag) => tag.tag.name === filterValue);
+        //     }
+        //     return true;
+        // },
         state: {
             sorting,
             columnFilters,

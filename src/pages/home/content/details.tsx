@@ -4,56 +4,62 @@ import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { H2, H3 } from "@/components/ui/typos.tsx";
 import { rspcClient } from "@/helpers/rspc.ts";
-import { Optimisation, XlsmBasicData, XlsmLancementData, XlsmOptimisationData } from "@/rspc_bindings.ts";
+import useAppContext from "@/hooks/useAppContext";
+import {
+    fakeDashboardComptes,
+    fakeDashboardLancementData,
+    fakeDashboardOptimisationData,
+    fakeDashboardOptimisations,
+} from "@/lib/tours/dashboardTour";
+import { Optimisation, Procedures, XlsmBasicData, XlsmLancementData, XlsmOptimisationData } from "@/rspc_bindings.ts";
 import { $profilCreationPopup } from "@/signals/components/ui/popups";
+import { inferProcedureResult } from "@rspc/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 interface AllOptiData {
     infos: Optimisation;
-    basic: XlsmBasicData;
+    basic?: XlsmBasicData;
     lancement: XlsmLancementData;
     opti: XlsmOptimisationData;
 }
 
 export const HomeContentDetails = () => {
+    /** TOUR **/
+    const {
+        state: { run, section },
+    } = useAppContext();
+
+    /** END TOUR **/
+
     const { id } = useParams();
     const [allPeriodes, setAllPeriodes] = useState<{ periode: string; resultat: number; dd: number }[]>([]);
     const navigate = useNavigate();
 
-    // {dataOptiData?.map((opti) => {
-    //     if (opti.infos.decalage_ct_unit !== "mois") return <></>;
-    //     return (
-    //         <>
-    //             <TableRow>
-    //                 <TableCell colSpan={opti.opti.periodes.length}>{opti.infos.name}</TableCell>
-    //             </TableRow>
-    //             <TableRow>
-    //                 {opti.opti.periodes.map((periode) => {
-    //                     return (
-    //                         <TableCell>
-    //                             {new Date(Date.parse(periode)).toLocaleDateString()}
-    //                         </TableCell>
-    //                     );
-    //                 })}
-    //                 <TableCell></TableCell>
-    //             </TableRow>
-    //         </>
-    //     );
-    // })}
-
     const { isSuccess: isSuccessCompteById, data: dataCompteById } = useQuery({
         queryKey: ["comptes.get_by_id", { id: parseInt(id!, 10) }],
         queryFn: () => {
-            return rspcClient.query(["comptes.get_by_id", { id: parseInt(id!, 10) }]);
+            if (!run || section !== "dashboard")
+                return rspcClient.query(["comptes.get_by_id", { id: parseInt(id!, 10) }]);
+
+            return new Promise<inferProcedureResult<Procedures, "queries", "comptes.get_by_id">>((resolve) => {
+                resolve(fakeDashboardComptes[0]);
+            });
         },
     });
 
     const { isSuccess: isSuccessOptiByCompte, data: dataOptiByCompte } = useQuery({
         queryKey: ["optimisations.get_by_compte_id", { id: parseInt(id!, 10) }],
         queryFn: () => {
-            return rspcClient.query(["optimisations.get_by_compte_id", { compte_id: parseInt(id!, 10) }]);
+            if (!run || section !== "dashboard")
+                return rspcClient.query(["optimisations.get_by_compte_id", { compte_id: parseInt(id!, 10) }]);
+
+            return new Promise<inferProcedureResult<Procedures, "queries", "optimisations.get_by_compte_id">>(
+                (resolve) => {
+                    resolve(fakeDashboardOptimisations);
+                },
+            );
         },
     });
 
@@ -63,19 +69,31 @@ export const HomeContentDetails = () => {
             const allOptiData: AllOptiData[] = [];
             const periodes: { periode: string; resultat: number; dd: number }[] = [];
             for (const opti of dataOptiByCompte!) {
-                const basic = await rspcClient.query(["optimisations.get_xlsm_basic_data", { path: opti.xlsm_path }]);
-                const lancement = await rspcClient.query([
-                    "optimisations.get_xlsm_lancement_data",
-                    { path: opti.xlsm_path },
-                ]);
-                const optiData = await rspcClient.query([
-                    "optimisations.get_xlsm_optimisation_data",
-                    {
-                        path: opti.xlsm_path,
-                        nb_periodes: lancement.nb_periodes,
-                    },
-                ]);
-                allOptiData.push({ basic, lancement, infos: opti, opti: optiData });
+                // const basic = await rspcClient.query(["optimisations.get_xlsm_basic_data", { path: opti.xlsm_path }]);
+                let lancement;
+                if (!run || section !== "dashboard") {
+                    lancement = await rspcClient.query([
+                        "optimisations.get_xlsm_lancement_data",
+                        { path: opti.xlsm_path },
+                    ]);
+                } else {
+                    lancement = fakeDashboardLancementData;
+                }
+
+                let optiData;
+                if (!run || section !== "dashboard") {
+                    optiData = await rspcClient.query([
+                        "optimisations.get_xlsm_optimisation_data",
+                        {
+                            path: opti.xlsm_path,
+                            nb_periodes: lancement.nb_periodes,
+                        },
+                    ]);
+                } else {
+                    optiData = fakeDashboardOptimisationData;
+                }
+
+                // allOptiData.push({ lancement, infos: opti, opti: optiData });
                 let index = 0;
                 for (const periode of optiData.periodes) {
                     if (opti.decalage_ct_unit !== "mois") continue;
@@ -130,7 +148,7 @@ export const HomeContentDetails = () => {
                 Globalement, si il ne dépasse pas 100, le compte n'aurait très probabement pas cramé.
             </p>
             {isSuccessOptiData && (
-                <Table>
+                <Table className="tour-dashboard-recapitulatif">
                     <TableBody>
                         <TableRow>
                             {allPeriodes.map((periode, index) => {
@@ -163,25 +181,29 @@ export const HomeContentDetails = () => {
                 </Table>
             )}
 
-            <Button onClick={() => $profilCreationPopup.set(true)}>Générer le profil Metatrader 4</Button>
+            <Button className="tour-dashboard-profil" onClick={() => $profilCreationPopup.set(true)}>
+                Générer le profil Metatrader 4
+            </Button>
 
-            <H3>Liste des robots sur le compte</H3>
+            <div className="tour-dashboard-robots">
+                <H3>Liste des robots sur le compte</H3>
 
-            {isSuccessOptiByCompte &&
-                dataOptiByCompte?.map((opti, index) => (
-                    <Table key={`opti-${index}`}>
-                        <TableBody>
-                            <TableRow
-                                className={"cursor-pointer hover:bg-accent"}
-                                onClick={() => handleViewOptimisation(opti.id)}
-                            >
-                                <TableCell className={"w-1/3 p-1"}>{opti.name}</TableCell>
-                                <TableCell className={"w-1/3 p-1 text-center"}>{opti.paire}</TableCell>
-                                <TableCell className={"w-1/3 p-1 text-center"}>{opti.timeframe}</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                ))}
+                {isSuccessOptiByCompte &&
+                    dataOptiByCompte?.map((opti, index) => (
+                        <Table key={`opti-${index}`}>
+                            <TableBody>
+                                <TableRow
+                                    className={"cursor-pointer hover:bg-accent"}
+                                    onClick={() => handleViewOptimisation(opti.id)}
+                                >
+                                    <TableCell className={"w-1/3 p-1"}>{opti.name}</TableCell>
+                                    <TableCell className={"w-1/3 p-1 text-center"}>{opti.paire}</TableCell>
+                                    <TableCell className={"w-1/3 p-1 text-center"}>{opti.timeframe}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    ))}
+            </div>
         </div>
     );
 };
