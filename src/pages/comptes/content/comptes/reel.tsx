@@ -16,6 +16,8 @@ import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
 import { fakeComptes } from "@/lib/tours/comptesTour";
 import { Procedures } from "@/rspc_bindings.ts";
+import { $compteEditPopup } from "@/signals/components/ui/popups";
+import { useGlobalStore } from "@/stores/global-store";
 import { MyfxbookMyAccountsResponse } from "@/types/myfxbook.ts";
 import { inferProcedureResult } from "@rspc/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +32,8 @@ export const CompteContentReel = () => {
         state: { run, section },
     } = useAppContext();
     /** END TOUR **/
+
+    const { setCurrentCompte } = useGlobalStore();
 
     const {
         isSuccess: comptesIsSuccess,
@@ -68,6 +72,14 @@ export const CompteContentReel = () => {
         [navigate],
     );
 
+    const handleEditCompte = useCallback(
+        (id: number) => {
+            setCurrentCompte(data?.find((compte) => compte.id === id));
+            $compteEditPopup.set(true);
+        },
+        [data, setCurrentCompte],
+    );
+
     const handleDeleteCompte = useCallback(
         async (id: number) => {
             await rspcClient.mutation(["comptes.delete", { id: id }]);
@@ -100,7 +112,7 @@ export const CompteContentReel = () => {
                             <Button
                                 className={"tour-comptes-edit w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
-                                onClick={() => null}
+                                onClick={() => handleEditCompte(row.original.id)}
                             >
                                 <PencilIcon className="h-4 w-4" />
                             </Button>
@@ -263,7 +275,14 @@ export const CompteContentReel = () => {
                 },
             }),
         ],
-        [columnHelper, handleDeleteCompte, handleSelectCompte, myfxbookData?.accounts, myfxbookSuccess],
+        [
+            columnHelper,
+            handleDeleteCompte,
+            handleEditCompte,
+            handleSelectCompte,
+            myfxbookData?.accounts,
+            myfxbookSuccess,
+        ],
     );
 
     if (comptesIsSuccess) return <CompteReelDataTable data={data} columns={columns} isLoading={comptesIsPending} />;

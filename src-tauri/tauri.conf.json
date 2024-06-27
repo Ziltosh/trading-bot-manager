@@ -8,7 +8,7 @@
     },
     "package": {
         "productName": "Trading Bot Manager",
-        "version": "0.0.6"
+        "version": "0.0.7"
     },
     "tauri": {
         "allowlist": {
@@ -60,7 +60,7 @@
             },
             "resources": [],
             "shortDescription": "",
-            "targets": "all",
+            "targets": ["msi", "app", "appimage", "dmg", "updater"],
             "windows": {
                 "certificateThumbprint": null,
                 "digestAlgorithm": "sha256",
@@ -71,14 +71,8 @@
             "csp": null
         },
         "updater": {
-            "active": false,
-            "endpoints": [
-                "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_amd64.AppImage",
-                "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_amd64.deb",
-                "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_aarch64.dmg",
-                "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_x64_setup.exe",
-                "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/Trading.Bot.Manager_{{current_version}}_en-US.msi"
-            ],
+            "active": true,
+            "endpoints": ["https://gist.githubusercontent.com/Ziltosh/4c4b86157363d1d0f09b12e26236c642/raw"],
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk4RjRBNDBDQjZFMjlCQzYKUldUR20rSzJES1QwbUlSZlZLdEFaVzR5VERKSHZoNXVuSEhteFJSOE45Z2MxZ251S0U5QThCTDkK"
         },
         "windows": [

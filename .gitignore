@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 target
+notes_dev.md
 
 .tauri
 build.sh

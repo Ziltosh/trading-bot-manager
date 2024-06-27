@@ -7,5 +7,13 @@
         "Modifications diverses de textes",
         "Possibilité d'éditer les comptes"
     ],
-    "0.0.8": ["Possibilité d'éditer les robots"]
+    "0.0.7": [
+        "Ajout de l'updater",
+        "Correction de l'édition des comptes",
+        "Possibilité d'éditer les robots",
+        "Ajout de l'explication pour MyFxBook dans le didacticiel des comptes",
+        "Ajout d'un écran au didacticiel de dashboard pour la génération du profil MT4",
+        "Ajout de investor et master password pour les comptes"
+    ],
+    "0.0.8": ["Intégrer le \"Lot Boost\" sur la création du profil MT4: voir l'étude de cas \"Booster les résultats\""]
 }

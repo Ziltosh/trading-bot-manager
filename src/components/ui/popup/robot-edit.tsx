@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
     Form,
@@ -16,62 +15,30 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { H2 } from "@/components/ui/typos.tsx";
 import { rspcClient } from "@/helpers/rspc.ts";
 import { convertSetToJson } from "@/helpers/setFiles.ts";
-import useAppContext from "@/hooks/useAppContext.ts";
-import { RobotCreateArgs } from "@/rspc_bindings.ts";
-import { TourSteps } from "@/WelcomeTourSteps.ts";
+import { useGlobalStore } from "@/stores/global-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { open } from "@tauri-apps/api/dialog";
 import { AlertCircle, InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { useMount } from "react-use";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import CheminRobotImg from "../../../assets/img/chemin_robot.jpg";
 
-interface PopupPortfolioAddProps {
+type PopupRobotEditProps = {
     onClosePopup: () => void;
-}
+};
 
-export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
-    /** TOUR **/
-    const {
-        setState,
-        state: { tourActive },
-    } = useAppContext();
+export const PopupRobotEdit = ({ onClosePopup }: PopupRobotEditProps) => {
+    let forceRefresh = new Date().getTime();
 
-    useMount(() => {
-        if (tourActive) {
-            setTimeout(() => {
-                setState({ run: true, stepIndex: TourSteps.TOUR_ROBOT_ADD_NAME });
-            }, 100);
-        }
-    });
-    /** END TOUR **/
+    const { currentRobot: robot } = useGlobalStore();
 
     const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [errorMessage] = useState("");
-    const [defaultTags] = useState([
-        { value: "Grid" },
-        { value: "Scalping" },
-        { value: "Martingale" },
-        { value: "REB" },
-        { value: "IA" },
-        { value: "M1" },
-        { value: "M5" },
-        { value: "M15" },
-        { value: "M30" },
-        { value: "H1" },
-        { value: "H4" },
-        { value: "D" },
-        { value: "MT4" },
-        { value: "MT5" },
-        { value: "All TF" },
-    ]);
-
     const [jsonSettings, setJsonSettings] = useState("");
 
     const queryClient = useQueryClient();
@@ -80,13 +47,6 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
         name: z.string().min(4).max(20).regex(fileNameRegex, "Cacactères non autorisés"),
         chemin: z.string(),
         description: z.string(),
-        tags: z
-            .array(
-                z.object({
-                    value: z.string(),
-                }),
-            )
-            .min(1),
         json_settings: z.string(),
     });
 
@@ -94,12 +54,10 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
         resolver: zodResolver(formSchema),
         mode: "onChange",
         defaultValues: {
-            name:
-                "Robot #" +
-                Math.floor(Math.random() * 1000)
-                    .toString()
-                    .padStart(4, "0"),
-            tags: [],
+            name: robot?.name,
+            chemin: robot?.chemin,
+            description: robot?.description,
+            json_settings: robot?.json_settings,
         },
     });
 
@@ -112,29 +70,25 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
         });
     }, [form, settingsFilePath]);
 
-    const { fields, append, remove } = useFieldArray({
-        name: "tags",
-        control: form.control,
-    });
+    useEffect(() => {
+        if (!robot) return;
+        form.setValue("name", robot.name);
+        form.setValue("chemin", robot.chemin);
+        form.setValue("description", robot.description);
+        form.setValue("json_settings", robot.json_settings);
+        forceRefresh = new Date().getTime();
+        console.log(forceRefresh);
+    }, [robot, form]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsCreating(true);
 
-        const args: RobotCreateArgs = {
-            ...values,
-            json_settings: jsonSettings,
-        };
-        const robot = await rspcClient.mutation(["robots.create", args]);
-
-        for (let i = 0; i < values.tags.length; i++) {
-            await rspcClient.mutation([
-                "tags.create_for_robot",
-                {
-                    tag: values.tags[i].value,
-                    robot_id: robot.id,
-                },
-            ]);
-        }
+        console.log(values, jsonSettings);
+        // const args: RobotCreateArgs = {
+        //     ...values,
+        //     json_settings: jsonSettings,
+        // };
+        // const robot = await rspcClient.mutation(["robots.create", args]);
 
         await queryClient.invalidateQueries({ queryKey: ["robots.all"] });
 
@@ -151,7 +105,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                 className="m-auto w-1/2 flex-col gap-2 rounded-lg border bg-background p-4 shadow-md"
                 onClick={(e) => e.stopPropagation()}
             >
-                <H2>Ajouter un robot</H2>
+                <H2>Modifier le robot {robot?.name}</H2>
                 {isError && (
                     <Alert variant={"destructive"} className={"w-max"}>
                         <AlertCircle className={"h-4 w-4"} />
@@ -219,74 +173,6 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
                                 </FormItem>
                             )}
                         />
-
-                        <div className="tour-robots-add-tags space-y-2">
-                            <FormLabel>Tags</FormLabel>
-                            <div className={"flex flex-row flex-wrap gap-2"}>
-                                {fields.map((field, index) => (
-                                    <div key={`div_${field.id}`}>
-                                        <Badge
-                                            key={`badge_${field.id}`}
-                                            variant={"secondary"}
-                                            className={"cursor-pointer bg-accent"}
-                                            onClick={() => remove(index)}
-                                        >
-                                            {field.value}
-                                        </Badge>
-                                        <FormField
-                                            control={form.control}
-                                            key={field.id}
-                                            name={`tags.${index}.value`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input className={"hidden"} {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                            <FormLabel>Ajouter un tag</FormLabel>
-                            <div className="flex flex-wrap gap-2">
-                                {defaultTags.map((tag, index) => (
-                                    <Badge
-                                        key={`badge_${index}`}
-                                        variant={
-                                            fields.filter((el) => el.value === tag.value).length > 0
-                                                ? "outline"
-                                                : "secondary"
-                                        }
-                                        className={
-                                            fields.filter((el) => el.value === tag.value).length === 0
-                                                ? "cursor-pointer hover:bg-accent"
-                                                : ""
-                                        }
-                                        onClick={() => {
-                                            if (fields.filter((el) => el.value === tag.value).length === 0) {
-                                                append({ value: tag.value });
-                                            }
-                                        }}
-                                    >
-                                        {tag.value}
-                                    </Badge>
-                                ))}
-                            </div>
-                            <Input
-                                type={"text"}
-                                placeholder={"Tag personnalisé, entrée pour valider"}
-                                onKeyDown={(e) => {
-                                    // Si la touche entrée est pressée, on ajoute un tag avec la valeur de l'input
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        append({ value: e.currentTarget.value });
-                                        e.currentTarget.value = "";
-                                    }
-                                }}
-                            />
-                        </div>
 
                         <FormField
                             control={form.control}

@@ -1,29 +1,20 @@
-import { createColumnHelper } from "@tanstack/react-table";
-import { inferProcedureResult } from "@rspc/client";
-import { Procedures } from "@/rspc_bindings.ts";
-import { useMemo } from "react";
-import { Button } from "@/components/ui/button.tsx";
-import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTrigger } from "@/components/ui/alert-dialog.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { CompteDemoDataTable } from "@/components/ui/custom/comptes/demo-datatable.tsx";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
 import { rspcClient } from "@/helpers/rspc.ts";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog.tsx";
-import { useNavigate } from "react-router-dom";
 import useAppContext from "@/hooks/useAppContext.ts";
-import { MyfxbookMyAccountsResponse } from "@/types/myfxbook.ts";
+import { Procedures } from "@/rspc_bindings.ts";
 import { $compteEditPopup } from "@/signals/components/ui/popups";
 import { useGlobalStore } from "@/stores/global-store";
+import { MyfxbookMyAccountsResponse } from "@/types/myfxbook.ts";
+import { inferProcedureResult } from "@rspc/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const CompteContentDemo = () => {
     /** TOUR **/
@@ -59,6 +50,31 @@ export const CompteContentDemo = () => {
 
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+
+    const handleSelectCompte = useCallback(
+        (id: number) => {
+            navigate(`/comptes/${id}`);
+        },
+        [navigate],
+    );
+
+    const handleEditCompte = useCallback(
+        (id: number) => {
+            setCurrentCompte(data?.find((compte) => compte.id === id));
+            $compteEditPopup.set(true);
+        },
+        [data, setCurrentCompte],
+    );
+
+    const handleDeleteCompte = useCallback(
+        async (id: number) => {
+            await rspcClient.mutation(["comptes.delete", { id: id }]);
+            await queryClient.invalidateQueries({
+                queryKey: ["comptes", "get_demo"],
+            });
+        },
+        [queryClient],
+    );
 
     const columnHelper = createColumnHelper<inferProcedureResult<Procedures, "queries", "comptes.get_demo">[0]>();
 
@@ -242,24 +258,15 @@ export const CompteContentDemo = () => {
                 },
             }),
         ],
-        [columnHelper],
+        [
+            columnHelper,
+            handleDeleteCompte,
+            handleEditCompte,
+            handleSelectCompte,
+            myfxbookData?.accounts,
+            myfxbookSuccess,
+        ],
     );
-
-    const handleSelectCompte = (id: number) => {
-        navigate(`/comptes/${id}`);
-    };
-
-    const handleEditCompte = (id: number) => {
-        setCurrentCompte(data?.find((compte) => compte.id === id));
-        $compteEditPopup.set(true);
-    };
-
-    const handleDeleteCompte = async (id: number) => {
-        await rspcClient.mutation(["comptes.delete", { id: id }]);
-        await queryClient.invalidateQueries({
-            queryKey: ["comptes", "get_demo"],
-        });
-    };
 
     if (isSuccess) return <CompteDemoDataTable data={data} columns={columns} isLoading={isPending} />;
 

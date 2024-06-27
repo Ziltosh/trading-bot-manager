@@ -46,6 +46,7 @@ tauri = { version = "1.6.8", features = [
     "fs-write-file",
     "dialog-message",
     "fs-read-file",
+    "updater",
 ] }
 tauri-build = { version = "1.5.2", features = [] }
 tokio = { version = "1.38", features = ["macros", "rt", "rt-multi-thread"] }

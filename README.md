@@ -1,3 +1,3 @@
-Generate entity with serde support
+# TBM: Trading Bot Manager
 
-`sea-orm-cli generate entity --with-serde both --serde-skip-deserializing-primary-key -o entity/src`
+Logiciel de gestions de robots de trading, comptes et optimisations basées sur le travail de Paul Bourdeau du site: https://reussirenbourse.fr

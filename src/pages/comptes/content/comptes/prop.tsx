@@ -1,13 +1,3 @@
-import { createColumnHelper } from "@tanstack/react-table";
-import { inferProcedureResult } from "@rspc/client";
-import { Procedures } from "@/rspc_bindings.ts";
-import { useMemo } from "react";
-import { Button } from "@/components/ui/button.tsx";
-import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { rspcClient } from "@/helpers/rspc.ts";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,9 +8,21 @@ import {
     AlertDialogHeader,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
-import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { ComptePropDataTable } from "@/components/ui/custom/comptes/prop-datatable.tsx";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext.ts";
+import { Procedures } from "@/rspc_bindings.ts";
+import { $compteEditPopup } from "@/signals/components/ui/popups";
+import { useGlobalStore } from "@/stores/global-store";
+import { inferProcedureResult } from "@rspc/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { ArrowUpDownIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const CompteContentProp = () => {
     /** TOUR **/
@@ -28,6 +30,8 @@ export const CompteContentProp = () => {
         state: { run, section },
     } = useAppContext();
     /** END TOUR **/
+
+    const { setCurrentCompte } = useGlobalStore();
 
     const { isSuccess, isPending, data } = useQuery({
         queryKey: ["comptes", "get_prop"],
@@ -42,6 +46,31 @@ export const CompteContentProp = () => {
 
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+
+    const handleSelectCompte = useCallback(
+        (id: number) => {
+            navigate(`/comptes/${id}`);
+        },
+        [navigate],
+    );
+
+    const handleEditCompte = useCallback(
+        (id: number) => {
+            setCurrentCompte(data?.find((compte) => compte.id === id));
+            $compteEditPopup.set(true);
+        },
+        [data, setCurrentCompte],
+    );
+
+    const handleDeleteCompte = useCallback(
+        async (id: number) => {
+            await rspcClient.mutation(["comptes.delete", { id: id }]);
+            await queryClient.invalidateQueries({
+                queryKey: ["comptes", "get_prop"],
+            });
+        },
+        [queryClient],
+    );
 
     const columnHelper = createColumnHelper<inferProcedureResult<Procedures, "queries", "comptes.get_prop">[0]>();
 
@@ -62,7 +91,7 @@ export const CompteContentProp = () => {
                             <Button
                                 className={"w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                                 variant={"secondary"}
-                                onClick={() => null}
+                                onClick={() => handleEditCompte(row.original.id)}
                             >
                                 <PencilIcon className="h-4 w-4" />
                             </Button>
@@ -209,17 +238,6 @@ export const CompteContentProp = () => {
         ],
         [columnHelper],
     );
-
-    const handleSelectCompte = (id: number) => {
-        navigate(`/comptes/${id}`);
-    };
-
-    const handleDeleteCompte = async (id: number) => {
-        await rspcClient.mutation(["comptes.delete", { id: id }]);
-        await queryClient.invalidateQueries({
-            queryKey: ["comptes", "get_prop"],
-        });
-    };
 
     if (isSuccess) return <ComptePropDataTable data={data} columns={columns} isLoading={isPending} />;
 

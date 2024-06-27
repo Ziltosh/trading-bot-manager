@@ -7,6 +7,7 @@ import { PopupOptimisationEdit } from "@/components/ui/popup/optimisation-edit.t
 import { PopupPortfolioAdd } from "@/components/ui/popup/portfolio-add.tsx";
 import { PopupProfilCreation } from "@/components/ui/popup/profil-creation";
 import { PopupRobotAdd } from "@/components/ui/popup/robot-add.tsx";
+import { PopupRobotEdit } from "@/components/ui/popup/robot-edit";
 import { PopupSettings } from "@/components/ui/popup/settings.tsx";
 import { PopupWhatsNew } from "@/components/ui/popup/whats-new";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable.tsx";
@@ -20,9 +21,15 @@ import {
     $portfolioAddPopup,
     $profilCreationPopup,
     $robotAddPopup,
+    $robotEditPopup,
     $settingsPopup,
     $whatsNewPopup,
 } from "@/signals/components/ui/popups.ts";
+import { ComptesTour } from "@/tours/ComptesTour";
+import { DashboardTour } from "@/tours/DashboardTour";
+import { OptimisationsTour } from "@/tours/OptimisationsTour";
+import { OptimisationViewTour } from "@/tours/OptimisationViewTour";
+import { RobotsTour } from "@/tours/RobotsTour";
 import { RootTour } from "@/tours/RootTour";
 import { ToursProvider } from "@/ToursProvider";
 import { useQuery } from "@tanstack/react-query";
@@ -30,16 +37,12 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
-import { ComptesTour } from "@/tours/ComptesTour";
-import { RobotsTour } from "@/tours/RobotsTour";
 import "./assets/css/app.css";
-import { OptimisationsTour } from "@/tours/OptimisationsTour";
-import { OptimisationViewTour } from "@/tours/OptimisationViewTour";
-import { DashboardTour } from "@/tours/DashboardTour";
 
 function App() {
     const portfolioAddPopup = useSignal($portfolioAddPopup);
     const robotAddPopup = useSignal($robotAddPopup);
+    const robotEditPopup = useSignal($robotEditPopup);
     const compteAddPopup = useSignal($compteAddPopup);
     const compteEditPopup = useSignal($compteEditPopup);
     const optimisationAddPopup = useSignal($optimisationAddPopup);
@@ -79,6 +82,14 @@ function App() {
                     <PopupRobotAdd
                         onClosePopup={() => {
                             $robotAddPopup.set(false);
+                        }}
+                    />
+                )}
+
+                {robotEditPopup && (
+                    <PopupRobotEdit
+                        onClosePopup={() => {
+                            $robotEditPopup.set(false);
                         }}
                     />
                 )}

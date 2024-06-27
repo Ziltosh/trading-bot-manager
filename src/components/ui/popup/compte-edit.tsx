@@ -15,17 +15,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { H2 } from "@/components/ui/typos.tsx";
 import { courtiers } from "@/helpers/courtiers.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
-import useAppContext from "@/hooks/useAppContext.ts";
 import { cn } from "@/lib/utils.ts";
 import { CompteUpdateArgs } from "@/rspc_bindings.ts";
 import { useGlobalStore } from "@/stores/global-store";
-import { TourSteps } from "@/WelcomeTourSteps.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMount } from "react-use";
 import * as z from "zod";
 
 interface PopupCompteEditProps {
@@ -33,21 +30,6 @@ interface PopupCompteEditProps {
 }
 
 export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
-    /** TOUR **/
-    const {
-        setState,
-        state: { tourActive },
-    } = useAppContext();
-
-    useMount(() => {
-        if (tourActive) {
-            setTimeout(() => {
-                setState({ run: true, stepIndex: TourSteps.TOUR_COMPTE_ADD_NAME });
-            }, 100);
-        }
-    });
-    /** END TOUR **/
-
     let forceRefresh = new Date().getTime();
 
     const { currentCompte: compte } = useGlobalStore();
@@ -141,7 +123,7 @@ export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
                 className="m-auto w-1/2 flex-col gap-2 rounded-lg border bg-background p-4 shadow-md"
                 onClick={(e) => e.stopPropagation()}
             >
-                <H2 className={"tour-comptes-add-popup"}>Ajouter un compte</H2>
+                <H2 className={"tour-comptes-add-popup"}>Modifier le compte</H2>
                 {isError && (
                     <Alert variant={"destructive"} className={"w-max"}>
                         <AlertCircle className={"h-4 w-4"} />

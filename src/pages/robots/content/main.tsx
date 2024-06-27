@@ -99,7 +99,6 @@ export const RobotContentMain = () => {
                         <Button
                             className={"tour-robots-edit w-10 p-0 hover:bg-accent hover:text-accent-foreground"}
                             variant={"secondary"}
-                            disabled
                             onClick={() => handleEditRobot(row.original.id)}
                         >
                             <PencilIcon className="h-4 w-4" />
