@@ -72,6 +72,7 @@
         },
         "updater": {
             "active": true,
+            "dialog": true,
             "endpoints": [
                 "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/latest.json"
             ],
