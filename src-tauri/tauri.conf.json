@@ -8,7 +8,7 @@
     },
     "package": {
         "productName": "Trading Bot Manager",
-        "version": "0.0.7"
+        "version": "0.0.6"
     },
     "tauri": {
         "allowlist": {
@@ -72,7 +72,9 @@
         },
         "updater": {
             "active": true,
-            "endpoints": ["https://gist.githubusercontent.com/Ziltosh/4c4b86157363d1d0f09b12e26236c642/raw"],
+            "endpoints": [
+                "https://github.com/Ziltosh/trading-bot-manager/releases/download/app-v{{current_version}}/latest.json"
+            ],
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk4RjRBNDBDQjZFMjlCQzYKUldUR20rSzJES1QwbUlSZlZLdEFaVzR5VERKSHZoNXVuSEhteFJSOE45Z2MxZ251S0U5QThCTDkK"
         },
         "windows": [
