@@ -1,21 +1,21 @@
+import { Button } from "@/components/ui/button.tsx";
+import { Help } from "@/components/ui/custom/help";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import { H2, H4 } from "@/components/ui/typos.tsx";
-import { useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rspcClient } from "@/helpers/rspc.ts";
-import { Button } from "@/components/ui/button.tsx";
+import useAppContext from "@/hooks/useAppContext";
+import { fakeOptimisationViewInfos } from "@/lib/tours/optimisationViewTour";
+import { OptimisationTabLancement } from "@/pages/optimisations/content/details/tab-lancement.tsx";
+import { OptimisationTabOptimisation } from "@/pages/optimisations/content/details/tab-optimisation.tsx";
+import { OptimisationTabSettings } from "@/pages/optimisations/content/details/tab-settings.tsx";
+import { Procedures } from "@/rspc_bindings";
+import { inferProcedureResult } from "@rspc/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
 import { appDataDir } from "@tauri-apps/api/path";
-import { OptimisationTabSettings } from "@/pages/optimisations/content/details/tab-settings.tsx";
-import { OptimisationTabLancement } from "@/pages/optimisations/content/details/tab-lancement.tsx";
-import { OptimisationTabOptimisation } from "@/pages/optimisations/content/details/tab-optimisation.tsx";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
-import { Help } from "@/components/ui/custom/help";
-import useAppContext from "@/hooks/useAppContext";
-import { inferProcedureResult } from "@rspc/client";
-import { Procedures } from "@/rspc_bindings";
-import { fakeOptimisationViewInfos } from "@/lib/tours/optimisationViewTour";
+import { useParams } from "react-router-dom";
 
 export const OptimisationDetails = () => {
     /** TOUR **/
@@ -53,9 +53,10 @@ export const OptimisationDetails = () => {
             ]);
         },
         onSuccess: () => {
-            queryClient.resetQueries({
+            queryClient.invalidateQueries({
                 queryKey: ["optimisations"],
             });
+
             // queryClient.invalidateQueries({
             //     queryKey: ["optimisations_periodes.get_by_optimisation_id", dataOpById?.id],
             // });

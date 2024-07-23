@@ -1,10 +1,10 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { convertToDate } from "@/helpers/periode.ts";
-import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
 import { PercentFormatted } from "@/components/ui/custom/percent-formatted.tsx";
+import { PriceFormatted } from "@/components/ui/custom/price-formatted.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { optimisationMax, optimisationMin, optimisationMoyenne, optimisationSomme } from "@/helpers/calculs.ts";
-import { useQuery } from "@tanstack/react-query";
+import { convertToDate } from "@/helpers/periode.ts";
 import { rspcClient } from "@/helpers/rspc.ts";
+import { useQuery } from "@tanstack/react-query";
 
 interface OptimisationTabOptimisationProps {
     dataOpById: { id: number; xlsm_path: string };

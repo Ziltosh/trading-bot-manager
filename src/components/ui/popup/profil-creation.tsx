@@ -2,20 +2,21 @@ import { Button } from "@/components/ui/button.tsx";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { H2, H3 } from "@/components/ui/typos";
+import { cleanParams, make } from "@/helpers/chrFiles";
 import { rspcClient } from "@/helpers/rspc";
+import { generateChrFromParams, mergeSetParams } from "@/helpers/setFiles";
+import { generateMagicNumber } from "@/lib/utils";
 import { useGlobalStore } from "@/stores/global-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { useQuery } from "@tanstack/react-query";
+import { dialog } from "@tauri-apps/api";
 import { InfoIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 
 import CheminRobotImg from "../../../assets/img/chemin_robot.jpg";
-import { cleanParams, make } from "@/helpers/chrFiles";
-import { generateChrFromParams, mergeSetParams } from "@/helpers/setFiles";
-import { dialog } from "@tauri-apps/api";
 
 interface PopupProfilCreationProps {
     onClosePopup: () => void;
@@ -27,6 +28,7 @@ const formSchema = z.object({
             paire: z.string(),
             robotPath: z.string(),
             nonTradingDD: z.string(),
+            magicNumber: z.string(),
             periode: z.number(),
             xlsm_path: z.string(),
             set_path: z.string(),
@@ -73,6 +75,7 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                 append(
                     {
                         nonTradingDD: "0",
+                        magicNumber: generateMagicNumber(opti.name),
                         paire: opti.paire,
                         robotPath: `${opti.robot.name}`,
                         xlsm_path: opti.xlsm_path,
@@ -86,6 +89,28 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
             });
         }
     }, [dataOptiByCompte, append, remove, fields.length, isSuccessOptiByCompte]);
+
+    const handleChangePaire = (key: number, value: string) => {
+        const suffix = value.replace(fields[key].paire, "");
+        fields.forEach((field: { paire: string }, key: number) => {
+            form.setValue(`optis.${key}.paire`, field.paire + suffix);
+        });
+    };
+
+    const handleChangeRobotPath = (key: number, value: string) => {
+        fields.forEach((field: { robotPath: string }, key2: number) => {
+            if (field.robotPath.includes(fields[key].robotPath)) {
+                form.setValue(`optis.${key2}.robotPath`, value);
+            }
+        });
+    };
+
+    const handleChangeNonTradingDD = () => {
+        const newNonTradingDD = form.getValues("optis.0.nonTradingDD");
+        fields.forEach((_field: { nonTradingDD: string }, key: number) => {
+            form.setValue(`optis.${key}.nonTradingDD`, newNonTradingDD);
+        });
+    };
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         if (!currentCompte) {
@@ -117,6 +142,11 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                 { path: opti.xlsm_path },
             ]);
 
+            if (!dataLancementData) {
+                alert("Erreur lors de la récupération des données de lancement");
+                return;
+            }
+
             const passageParamsStr = await rspcClient.query([
                 "optimisations.get_xlsm_passage_data",
                 {
@@ -125,6 +155,11 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                 },
             ]);
 
+            if (!passageParamsStr) {
+                alert("Erreur lors de la récupération des données du passage");
+                return;
+            }
+
             let optiSetParams = await rspcClient.query([
                 "optimisations.get_set_data",
                 {
@@ -132,12 +167,16 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                 },
             ]);
 
+            if (!optiSetParams) {
+                alert("Erreur lors de la récupération des données du set");
+                return;
+            }
+
             optiSetParams = cleanParams(optiSetParams);
-
             const passageSetParams = generateChrFromParams(passageParamsStr);
-
             let file = mergeSetParams(optiSetParams, passageSetParams, "temp", true, {
                 Non_Trading_DD: opti.nonTradingDD,
+                EA_Magic_Number: opti.magicNumber,
             });
 
             file = file
@@ -168,6 +207,7 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                     content: chr,
                 },
             ]);
+
             index++;
         }
 
@@ -194,12 +234,18 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                     <p>
                         <strong>Paire:</strong> Correspond au nom de la paire exacte de votre courtier, parfois ce n'est
                         pas EURUSD mais EURUSD.p ou EURUSD+ par exemple.
+                        <br />
+                        Si vous changez une paire pour rajouter un suffixe, toutes les autres paire du profil seront
+                        automatiquement mises à jour.
                     </p>
                     <p>
                         <strong>Chemin du robot:</strong> Ce champ correspond au chemin du robot dans l'arborescence
                         MT4, le départ de l'arborescence est le "dossier" Expert Consultant. Par exemple, si vous avez
                         mis tout les robots REB dans un dossier REB, alors rentrez "REB\Nom du robot v2.0" dans le champ
                         ci-dessous.
+                        <br />
+                        Si vous changez le chemin du robot, tous les chemins pour le même robot seront automatiquement
+                        mis à jour.
                         <br />
                         Exemple:{" "}
                         <TooltipProvider>
@@ -222,6 +268,10 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                         <strong>Non Trading DD: </strong>Si ce champ est positif, le paramètre Non Trading DD sera
                         rempli dans les paramètres du robot. Ne fonctionne que pour les robots REB.
                     </p>
+                    <p>
+                        <strong>Le magic number: </strong>Il ne peut pas être modifié, il est généré automatiquement et
+                        sera toujours le même si vous refaites un profil.
+                    </p>
                 </div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className={"flex flex-col space-y-4"}>
@@ -238,7 +288,11 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                                             <FormItem>
                                                 <FormLabel>Paire</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} placeholder={opti.paire} />
+                                                    <Input
+                                                        {...field}
+                                                        placeholder={opti.paire}
+                                                        onChange={(e) => handleChangePaire(key, e.target.value)}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -251,7 +305,11 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                                             <FormItem>
                                                 <FormLabel>Chemin du robot</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} placeholder={opti.robotPath} />
+                                                    <Input
+                                                        {...field}
+                                                        placeholder={opti.robotPath}
+                                                        onChange={(e) => handleChangeRobotPath(key, e.target.value)}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -264,7 +322,39 @@ export const PopupProfilCreation = ({ onClosePopup }: PopupProfilCreationProps) 
                                             <FormItem>
                                                 <FormLabel>Non trading DD</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} type="text" placeholder="0" />
+                                                    <div className="flex gap-2">
+                                                        {key === 0 && (
+                                                            <>
+                                                                <Input {...field} type="text" placeholder="0" />
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="secondary"
+                                                                    onClick={handleChangeNonTradingDD}
+                                                                >
+                                                                    Appliquer à tous
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                        {key > 0 && <Input {...field} type="text" placeholder="0" />}
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`optis.${key}.magicNumber`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Magic Number</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        readOnly={true}
+                                                        placeholder={opti.magicNumber}
+                                                        // onChange={(e) => handleChangeRobotPath(key, e.target.value)}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

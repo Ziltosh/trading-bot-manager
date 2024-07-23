@@ -184,7 +184,7 @@ export const PopupOptimisationAdd = ({ onClosePopup }: PopupPortfolioAddProps) =
                 ]);
             }
             //
-            await queryClient.invalidateQueries({ queryKey: ["optimisations.all"] });
+            await queryClient.invalidateQueries({ queryKey: ["optimisations"] });
 
             onClosePopup();
         } catch (e) {

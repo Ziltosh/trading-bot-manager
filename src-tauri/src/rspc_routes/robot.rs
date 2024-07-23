@@ -96,6 +96,44 @@ pub fn mount() -> RouterBuilder<Shared> {
                 Ok(robot)
             })
         })
+        .mutation("update", |t| {
+            #[derive(Debug, Clone, Deserialize, Serialize, Type)]
+            struct RobotUpdateArgs {
+                id: i32,
+                name: String,
+                chemin: String,
+                description: String,
+                json_settings: String,
+            }
+            t(|ctx, args: RobotUpdateArgs| async move {
+                let RobotUpdateArgs {
+                    id,
+                    name,
+                    chemin,
+                    description,
+                    json_settings,
+                } = args;
+
+                let robot;
+
+                robot = ctx
+                    .client
+                    .robot()
+                    .update(
+                        robot::id::equals(id),
+                        vec![
+                            robot::name::set(name),
+                            robot::chemin::set(chemin),
+                            robot::description::set(description),
+                            robot::json_settings::set(json_settings),
+                        ],
+                    )
+                    .exec()
+                    .await?;
+
+                Ok(robot)
+            })
+        })
         .mutation("delete", |t| {
             #[derive(Debug, Clone, Deserialize, Serialize, Type)]
             struct RobotDeleteArgs {

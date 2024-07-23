@@ -55,11 +55,11 @@ export const RobotContentMain = () => {
 
     const handleEditRobot = useCallback(
         async (id: number) => {
-            $robotEditPopup.set(true);
-            const robot = await rspcClient.query(["robots.get_by_id", { id: id }]);
+            const robot = data?.find((robot) => robot.id === id);
             setCurrentRobot(robot || undefined);
+            $robotEditPopup.set(true);
         },
-        [setCurrentRobot],
+        [setCurrentRobot, data],
     );
 
     const handleSelectRobot = useCallback(
@@ -73,13 +73,11 @@ export const RobotContentMain = () => {
         async (id: number) => {
             await rspcClient.mutation(["robots.delete", { id }]);
             await queryClient.invalidateQueries({
-                queryKey: ["robots.all"],
+                queryKey: ["robots"],
             });
         },
         [queryClient],
     );
-
-    setCurrentRobot(undefined);
 
     const columnHelper = createColumnHelper<inferProcedureResult<Procedures, "queries", "robots.all">[0]>();
 
@@ -117,7 +115,8 @@ export const RobotContentMain = () => {
                             <AlertDialogContent>
                                 <AlertDialogHeader>Confirmation</AlertDialogHeader>
                                 <AlertDialogDescription>
-                                    Voulez vous vraiment supprimer cette optimisation ?
+                                    Voulez vous vraiment supprimer ce robot ? Cette action supprimera toutes les
+                                    optimisations liées à ce robot.
                                 </AlertDialogDescription>
                                 <AlertDialogFooter>
                                     <AlertDialogAction onClick={() => handleDeleteRobot(row.original.id)}>
@@ -174,7 +173,7 @@ export const RobotContentMain = () => {
             </div>
 
             {data?.length === 0 && <p>Aucun robot.</p>}
-            {!isLoading && !isFetching && data && data?.length > 0 && (
+            {!isLoading && !isFetching && data && data.length > 0 && (
                 <div className={"my-2"}>
                     <RobotsDataTable columns={columns} data={data} isLoading={isLoading} />
                 </div>

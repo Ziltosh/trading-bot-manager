@@ -9,11 +9,17 @@
     ],
     "0.0.7": [
         "Ajout de l'updater",
+        "Ajout d'une modification automatique des paires lors de la modification d'une paire dans la création de profil MT4, par exemple: si on modifie EURUSD en EURUSD.i, toutes les autres paires du profil seront automatiquement mises à jour",
+        "Ajout d'une modificaiton automatique des chemins des robots dans la création de profil MT4: si le robot est le même, lorsque l'on modifie une des occurrences, toutes les autres sont mises à jour",
         "Correction de l'édition des comptes",
         "Possibilité d'éditer les robots",
         "Ajout de l'explication pour MyFxBook dans le didacticiel des comptes",
-        "Ajout d'un écran au didacticiel de dashboard pour la génération du profil MT4",
-        "Ajout de investor et master password pour les comptes"
+        "Divers petits bugfix"
     ],
-    "0.0.8": ["Intégrer le \"Lot Boost\" sur la création du profil MT4: voir l'étude de cas \"Booster les résultats\""]
+    "0.0.8": [
+        "Intégrer le \"Lot Boost\" sur la création du profil MT4: voir l'étude de cas \"Booster les résultats\"",
+        "Ajout d'un écran au didacticiel de dashboard pour la génération du profil MT4",
+        "Ajout de investor et master password pour les comptes",
+        "Ajout de la modification de tags sur les optimisations"
+    ]
 }

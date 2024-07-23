@@ -38,6 +38,7 @@ export type Procedures = {
         { key: "optimisations.update", input: OptimisationUpdateArgs, result: Optimisation } | 
         { key: "robots.create", input: RobotCreateArgs, result: Robot } | 
         { key: "robots.delete", input: RobotDeleteArgs, result: Robot } | 
+        { key: "robots.update", input: RobotUpdateArgs, result: Robot } | 
         { key: "tags.create_for_compte", input: TagCompteCreateArgs, result: Tag } | 
         { key: "tags.create_for_optimisation", input: TagOptimisationCreateArgs, result: Tag } | 
         { key: "tags.create_for_robot", input: TagRobotCreateArgs, result: Tag },
@@ -58,9 +59,13 @@ export type CheckXlsmExistsArgs = { path: string }
 
 export type Optimisation = { id: number; robotId: number; name: string; description: string; capital: number; date_debut: string; decalage_ct: number; decalage_ct_unit: string; decalage_lt: number; decalage_lt_unit: string; timeframe: string; paire: string; set_path: string; xlsm_path: string; compteId: number | null }
 
+export type RobotUpdateArgs = { id: number; name: string; chemin: string; description: string; json_settings: string }
+
 export type OptimisationUpdateArgs = { id: number; name: string; description: string; compte_id: number | null; timeframe: string; paire: string }
 
 export type OptimisationPeriodeUpsertArgs = { optimisation_id: number; periode: string; profit: number; drawdown: number }
+
+export type RobotDeleteArgs = { id: number }
 
 export type GetBasicDataArgs = { path: string }
 
@@ -101,8 +106,6 @@ export type TagOptimisationCreateArgs = { tag: string; optimisation_id: number }
 export type ZipCreateDirectory = { name: string; folder: string }
 
 export type Robot = { id: number; name: string; chemin: string; description: string; json_settings: string }
-
-export type RobotDeleteArgs = { id: number }
 
 export type ZipCreateFile = { path: string; folder: string; name: string; content: string }
 

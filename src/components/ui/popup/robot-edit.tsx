@@ -25,14 +25,13 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import CheminRobotImg from "../../../assets/img/chemin_robot.jpg";
+import { RobotUpdateArgs } from "@/rspc_bindings";
 
-type PopupRobotEditProps = {
+interface PopupRobotEditProps {
     onClosePopup: () => void;
-};
+}
 
 export const PopupRobotEdit = ({ onClosePopup }: PopupRobotEditProps) => {
-    let forceRefresh = new Date().getTime();
-
     const { currentRobot: robot } = useGlobalStore();
 
     const fileNameRegex = /^[^<>:"/\\|?*]+$/;
@@ -76,21 +75,30 @@ export const PopupRobotEdit = ({ onClosePopup }: PopupRobotEditProps) => {
         form.setValue("chemin", robot.chemin);
         form.setValue("description", robot.description);
         form.setValue("json_settings", robot.json_settings);
-        forceRefresh = new Date().getTime();
-        console.log(forceRefresh);
     }, [robot, form]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsCreating(true);
 
-        console.log(values, jsonSettings);
-        // const args: RobotCreateArgs = {
-        //     ...values,
-        //     json_settings: jsonSettings,
-        // };
-        // const robot = await rspcClient.mutation(["robots.create", args]);
+        try {
+            const args: RobotUpdateArgs = {
+                ...values,
+                json_settings: jsonSettings,
+                id: robot!.id,
+            };
 
-        await queryClient.invalidateQueries({ queryKey: ["robots.all"] });
+            console.log(args);
+
+            const test = await rspcClient.mutation(["robots.update", args]);
+            console.log(test);
+
+            queryClient.invalidateQueries({
+                queryKey: ["robots"],
+            });
+        } catch (e) {
+            console.error(e);
+            alert("Erreur lors de l'édition du robot");
+        }
 
         setIsCreating(false);
         onClosePopup();
@@ -219,7 +227,7 @@ export const PopupRobotEdit = ({ onClosePopup }: PopupRobotEditProps) => {
                                 disabled={isCreating}
                                 className={"tour-robots-add-create self-center"}
                             >
-                                {isCreating ? "Création en cours..." : "Créer"}
+                                {isCreating ? "Modification en cours..." : "Modifier"}
                             </Button>
                         </div>
                     </form>

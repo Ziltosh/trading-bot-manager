@@ -41,6 +41,36 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
         retry: (failureCount) => failureCount < 1,
     });
 
+    // Permet de créer les périodes dans la base de données
+    const { isSuccess: isSuccessOptimisationData } = useQuery({
+        queryKey: ["optimisations", "get_xlsm_optimisation_data", dataOpById?.id],
+        queryFn: async () => {
+            const optimisationData = await rspcClient.query([
+                "optimisations.get_xlsm_optimisation_data",
+                {
+                    path: dataOpById!.xlsm_path,
+                    nb_periodes: dataLancementData!.nb_periodes,
+                },
+            ]);
+
+            for (let i = 0; i < optimisationData.periodes.length; i++) {
+                await rspcClient.mutation([
+                    "optimisation_periodes.create",
+                    {
+                        optimisation_id: dataOpById!.id,
+                        periode: optimisationData.periodes[i],
+                        profit: parseFloat(optimisationData.resultats[i]),
+                        drawdown: parseFloat(optimisationData.drawdowns[i]),
+                    },
+                ]);
+            }
+
+            return optimisationData;
+        },
+        enabled: isSuccessLancementData,
+        retry: (failureCount) => failureCount < 1,
+    });
+
     const handleSaveSet = async () => {
         const passageParamsStr = await rspcClient.query([
             "optimisations.get_xlsm_passage_data",
@@ -70,7 +100,7 @@ export const OptimisationTabLancement = ({ dataOpById }: OptimisationTabLancemen
         await writeTextFile(savePath, file);
     };
 
-    if (isSuccessLancementData) {
+    if (isSuccessLancementData && isSuccessOptimisationData) {
         return (
             <div className="grid grid-cols-2 gap-2">
                 <Table>

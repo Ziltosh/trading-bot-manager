@@ -1,3 +1,4 @@
+import { generateMagicNumber } from "@/lib/utils";
 import { XlsmPassageData } from "@/rspc_bindings.ts";
 
 export type SetEntry = {
@@ -133,11 +134,13 @@ export function mergeSetParams(
     const defaultSettings = parseSettings(defaultSettingsText, isChr);
     const modifiedSettings = parseSettings(modifiedSettingsText, isChr);
 
-    const magicNumber = Math.ceil(Math.random() * 100_000_000);
-    modifiedSettings["EA_Magic_Number"] = magicNumber;
-    modifiedSettings["EA_Comment"] = robotName + " " + magicNumber.toString();
-    for (const key in overrides) {
-        modifiedSettings[key] = overrides[key];
+    if (modifiedSettings["EA_Magic_Number"] === undefined) {
+        const magicNumber = generateMagicNumber(robotName);
+        modifiedSettings["EA_Magic_Number"] = magicNumber;
+        modifiedSettings["EA_Comment"] = robotName + " " + magicNumber.toString();
+        for (const key in overrides) {
+            modifiedSettings[key] = overrides[key];
+        }
     }
 
     // Construire le résultat final en vérifiant les modifications

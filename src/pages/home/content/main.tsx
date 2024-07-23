@@ -6,10 +6,13 @@ export const HomeContentMain = () => {
 
     return (
         <div className={"tour-dashboard-page flex flex-col gap-2 overflow-y-scroll"}>
-            {/*<p>{dbPath}</p>*/}
             <div className="flex items-center justify-between">
                 <H2 className="flex-grow">Dashboard</H2>
                 <Help section="dashboard" />
+            </div>
+
+            <div className="rounded-md bg-gray-100 p-2 text-black">
+                TODO: Pouvoir avoir toujours le même Magic Number lors de la création d'un profil MT.
             </div>
 
             <div className="rounded-md bg-gray-100 p-2 text-black">
@@ -20,8 +23,6 @@ export const HomeContentMain = () => {
             <div className="rounded-md bg-gray-100 p-2 text-black">
                 TODO: Voir la diversification des comptes/paires.
             </div>
-
-            <div className="rounded-md bg-gray-100 p-2 text-black">TODO: Edition de comptes.</div>
 
             <div className="rounded-md bg-gray-100 p-2 text-black">
                 TODO: Intégrer les règles des différentes props firms HFT.

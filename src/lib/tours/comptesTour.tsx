@@ -16,6 +16,7 @@ export enum ComptesTourSteps {
     TOUR_COMPTE_ADD_INFOS,
     TOUR_COMPTE_ADD_TAGS,
     TOUR_COMPTE_ADD_CREATE,
+    TOUR_COMPTE_SETTINGS,
     TOUR_END,
 }
 
@@ -223,7 +224,23 @@ export const comptesTourSteps: Step[] = [
         ),
         ...defaultStepOptions,
         data: {
-            next: "/comptes",
+            // next: "/comptes",
+        },
+    },
+    {
+        target: ".tour-comptes-settings",
+        content: (
+            <div className={"flex flex-col gap-2"}>
+                <H3>Ajout de MyFXBook</H3>
+                <p>
+                    Cliquez sur cette icône pour ajouter MyFXBook, ça permettra de voir les balances des comptes dans la
+                    liste générale ainsi que les ordres ouverts dans le détail du compte.
+                </p>
+            </div>
+        ),
+        ...defaultStepOptions,
+        data: {
+            // next: "/comptes",
         },
     },
 ];

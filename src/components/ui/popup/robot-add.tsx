@@ -136,7 +136,7 @@ export const PopupRobotAdd = ({ onClosePopup }: PopupPortfolioAddProps) => {
             ]);
         }
 
-        await queryClient.invalidateQueries({ queryKey: ["robots.all"] });
+        await queryClient.invalidateQueries({ queryKey: ["robots"] });
 
         setIsCreating(false);
         onClosePopup();

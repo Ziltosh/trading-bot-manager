@@ -8,7 +8,7 @@ export const Settings = () => {
     };
 
     return (
-        <Button variant={"outline"} onClick={handleClick} size={"icon"}>
+        <Button variant={"outline"} onClick={handleClick} size={"icon"} className="tour-comptes-settings">
             <SettingsIcon className={"h-4 w-4"} />
         </Button>
     );

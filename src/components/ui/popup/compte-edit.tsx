@@ -30,11 +30,9 @@ interface PopupCompteEditProps {
 }
 
 export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
-    let forceRefresh = new Date().getTime();
+    // let forceRefresh = new Date().getTime();
 
     const { currentCompte: compte } = useGlobalStore();
-
-    console.log(compte);
 
     const fileNameRegex = /^[^<>:"/\\|?*]+$/;
     const [isError] = useState(false);
@@ -87,7 +85,7 @@ export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
         form.setValue("courtier", compte.courtier);
         form.setValue("capital", compte.capital.toString());
         form.setValue("password", compte.password || "");
-        forceRefresh = new Date().getTime();
+        // forceRefresh = new Date().getTime();
     }, [compte, form]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -123,7 +121,7 @@ export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
                 className="m-auto w-1/2 flex-col gap-2 rounded-lg border bg-background p-4 shadow-md"
                 onClick={(e) => e.stopPropagation()}
             >
-                <H2 className={"tour-comptes-add-popup"}>Modifier le compte</H2>
+                <H2 className={"tour-comptes-add-popup"}>Modifier le compte {compte?.name}</H2>
                 {isError && (
                     <Alert variant={"destructive"} className={"w-max"}>
                         <AlertCircle className={"h-4 w-4"} />
@@ -150,7 +148,7 @@ export const PopupCompteEdit = ({ onClosePopup }: PopupCompteEditProps) => {
                         <FormField
                             control={form.control}
                             name="type_compte"
-                            key={`type_compte_${forceRefresh}`}
+                            key={`type_compte`}
                             render={({ field }) => (
                                 <FormItem className="tour-comptes-add-type">
                                     <FormLabel>Type de compte</FormLabel>

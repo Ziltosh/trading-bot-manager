@@ -17,7 +17,10 @@ export const Help = ({ section }: HelpProps) => {
 
                 <HelpCircleIcon
                     className="relative h-6 w-6 cursor-pointer text-gray-500"
-                    onClick={() => setState({ run: true, section })}
+                    onClick={() => {
+                        localStorage.setItem("globalFilter", "");
+                        setState({ run: true, section })
+                    }}
                 />
             </div>
         </div>

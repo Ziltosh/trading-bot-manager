@@ -5,12 +5,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx
 import { H2, H3 } from "@/components/ui/typos.tsx";
 import { rspcClient } from "@/helpers/rspc.ts";
 import useAppContext from "@/hooks/useAppContext";
-import {
-    fakeDashboardComptes,
-    fakeDashboardLancementData,
-    fakeDashboardOptimisationData,
-    fakeDashboardOptimisations,
-} from "@/lib/tours/dashboardTour";
+import { fakeDashboardComptes, fakeDashboardLancementData, fakeDashboardOptimisationData, fakeDashboardOptimisations } from "@/lib/tours/dashboardTour";
 import { Optimisation, Procedures, XlsmBasicData, XlsmLancementData, XlsmOptimisationData } from "@/rspc_bindings.ts";
 import { $profilCreationPopup } from "@/signals/components/ui/popups";
 import { inferProcedureResult } from "@rspc/client";

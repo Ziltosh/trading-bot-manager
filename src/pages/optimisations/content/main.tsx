@@ -75,7 +75,7 @@ export const OptimisationContentMain = () => {
         async (id: number) => {
             await rspcClient.mutation(["optimisations.delete", { id: id }]);
             await queryClient.invalidateQueries({
-                queryKey: ["optimisations.all"],
+                queryKey: ["optimisations"],
             });
         },
         [queryClient],

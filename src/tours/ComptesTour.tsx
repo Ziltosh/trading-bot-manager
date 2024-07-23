@@ -20,6 +20,7 @@ export const ComptesTour = () => {
             queryClient.invalidateQueries({
                 queryKey: ["comptes"],
             });
+            localStorage.setItem("globalFilter", "");
         }
 
         if (action === "skip" || action === "close" || action === "reset" || action === "stop") {
@@ -39,13 +40,17 @@ export const ComptesTour = () => {
                     setState({ stepIndex: ComptesTourSteps.TOUR_COMPTE_ADD_NAME });
                 }, 100);
             } else if (index === ComptesTourSteps.TOUR_COMPTE_ADD_CREATE) {
-                setState({ run: false, stepIndex: ComptesTourSteps.TOUR_COMPTE, tourActive: false });
                 $compteAddPopup.set(false);
+                window.setTimeout(() => {
+                    setState({ stepIndex: ComptesTourSteps.TOUR_COMPTE_SETTINGS });
+                }, 100);
+            } else if (index === ComptesTourSteps.TOUR_COMPTE_SETTINGS) {
+                setState({ run: false, stepIndex: ComptesTourSteps.TOUR_COMPTE, tourActive: false });
                 window.setTimeout(() => {
                     queryClient.invalidateQueries({
                         queryKey: ["comptes"],
                     });
-                }, 50);
+                }, 100);
             } else {
                 setState({ stepIndex: index + 1 });
             }
